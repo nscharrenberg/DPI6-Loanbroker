@@ -156,9 +156,9 @@ public class LoanClientFrame extends JFrame {
 		scrollPane.setViewportView(requestReplyList);
 
 		/**
-		 * Proces
+		 * Process
 		 * ======================================================================================
-		 * 1. Client should request a loan, it sends the LoanRequest object to the Loan Broker.
+		 * 1. Client should request a loan, it sends the LoanRequest object to the Loan Broker.  <===
 		 * 2. The Loan Broker consumes the LoanRequest object from the client.
 		 * 3. The Loan Broker converts the LoanRequest into a BankInterestRequest.
 		 * 4. The Loan Broker sends the BankInterestRequest to the Bank.
@@ -168,7 +168,7 @@ public class LoanClientFrame extends JFrame {
 		 * 8. The Loan Broker consumes the BankInterestReply from the Bank.
 		 * 9. The Loan Broker converts the BankInterestReply into a LoanReply.
 		 * 10. The Loan Broker sends the LoanReply back to the Client.
-		 * 11. The Client consumes the LoanReply.
+		 * 11. The Client consumes the LoanReply.												 <===
 		 * ======================================================================================
 		 */
 
