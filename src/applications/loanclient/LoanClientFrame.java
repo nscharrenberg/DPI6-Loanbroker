@@ -2,6 +2,7 @@ package applications.loanclient;
 import mix.messaging.requestreply.RequestReply;
 import mix.model.loan.LoanReply;
 import mix.model.loan.LoanRequest;
+import org.apache.activemq.ActiveMQConnectionFactory;
 
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
@@ -9,7 +10,9 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.Serializable;
 
+import javax.jms.*;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -35,6 +38,21 @@ public class LoanClientFrame extends JFrame {
 	private JLabel lblNewLabel;
 	private JLabel lblNewLabel_1;
 	private JTextField tfTime;
+
+	/**
+	 * JMS Variables
+	 */
+	private Connection connection = null;
+	private Session session = null;
+
+	private Destination sendDestination = null;
+
+	private MessageProducer producer = null;
+	private MessageConsumer consumer = null;
+
+	// Queues
+	private Queue loanRequestQueue = null;
+	private Queue loanReplyQueue = null;
 
 	/**
 	 * Create the frame.
@@ -133,8 +151,75 @@ public class LoanClientFrame extends JFrame {
 		contentPane.add(scrollPane, gbc_scrollPane);
 		
 		requestReplyList = new JList<RequestReply<LoanRequest,LoanReply>>(listModel);
-		scrollPane.setViewportView(requestReplyList);	
-       
+		scrollPane.setViewportView(requestReplyList);
+
+		/**
+		 * Proces
+		 * ======================================================================================
+		 * 1. Client should request a loan, it sends the LoanRequest object to the Loan Broker.
+		 * 2. The Loan Broker consumes the LoanRequest object from the client.
+		 * 3. The Loan Broker converts the LoanRequest into a BankInterestRequest.
+		 * 4. The Loan Broker sends the BankInterestRequest to the Bank.
+		 * 5. The Bank consumes the BankInterestRequest from the Loan Broker.
+		 * 6. An person sets an interest rate and converts it into a BankInterestReply.
+		 * 7. The Bank sends the BankInterestReply back to the Loan Broker.
+		 * 8. The Loan Broker consumes the BankInterestReply from the Bank.
+		 * 9. The Loan Broker converts the BankInterestReply into a LoanReply.
+		 * 10. The Loan Broker sends the LoanReply back to the Client.
+		 * 11. The Client consumes the LoanReply.
+		 * ======================================================================================
+		 */
+
+		//todo: add logic here.
+
+
+
+	}
+
+	/**
+	 * This method produces a JMS message and sends it to the Queue.
+	 * @param obj
+	 */
+	private void produce(Serializable obj) {
+		if(connection == null) {
+			openJMSConnection();
+		}
+
+		//todo: produce a JMS message
+
+	}
+
+	/**
+	 * This method consumes a JMS message and handles it's request.
+	 * todo: Add params
+	 */
+	private void consume() {
+		if(connection == null) {
+			openJMSConnection();
+		}
+
+		//todo: consume a JMS message
+	}
+
+	/**
+	 * This method initiates the JMS connection for the Queue's.
+	 * It establishes an ActiveMQ connection and the corresponding Queue's.
+	 */
+	private void openJMSConnection() {
+		try {
+			ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
+			connection = factory.createConnection();
+			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+			// Trust all serializable classes
+			factory.setTrustAllPackages(true);
+
+			loanRequestQueue = session.createQueue("loanRequestQueue");
+			loanReplyQueue = session.createQueue("loanReplyQueue");
+
+		} catch (JMSException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -143,8 +228,7 @@ public class LoanClientFrame extends JFrame {
 	 * @param request
 	 * @return
 	 */
-   private RequestReply<LoanRequest,LoanReply> getRequestReply(LoanRequest request){    
-     
+   private RequestReply<LoanRequest,LoanReply> getRequestReply(LoanRequest request){
      for (int i = 0; i < listModel.getSize(); i++){
     	 RequestReply<LoanRequest,LoanReply> rr =listModel.get(i);
     	 if (rr.getRequest() == request){
