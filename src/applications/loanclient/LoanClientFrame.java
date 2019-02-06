@@ -262,6 +262,14 @@ public class LoanClientFrame extends JFrame {
 			System.out.println("Start Connection");
 		} catch (JMSException e) {
 			e.printStackTrace();
+		} finally {
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (JMSException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 
