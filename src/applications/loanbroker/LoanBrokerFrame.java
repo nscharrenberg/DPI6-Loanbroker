@@ -1,5 +1,6 @@
 package applications.loanbroker;
 
+import mix.messaging.requestreply.RequestReply;
 import mix.model.bank.BankInterestReply;
 import mix.model.bank.BankInterestRequest;
 import mix.model.loan.LoanReply;
@@ -107,6 +108,68 @@ public class LoanBrokerFrame extends JFrame {
 		 * 11. The Client consumes the LoanReply.
 		 * ======================================================================================
 		 */
+		consume("loanRequestQueue", new MessageListener() {
+			@Override
+			public void onMessage(Message msg) {
+				if(msg instanceof ObjectMessage) {
+					Serializable obj = null;
+					System.out.println("Passed onMessage");
+
+					try {
+						obj = (Serializable)((ObjectMessage) msg).getObject();
+						System.out.println("Passed Object");
+
+						if(obj instanceof LoanRequest) {
+							LoanRequest request = (LoanRequest) obj;
+
+							System.out.println("Request: " + request);
+
+							BankInterestRequest bankInterestRequest = new BankInterestRequest(request.getAmount(), request.getTime());
+							bankInterestRequest.setLoanRequest(request);
+
+							add(request);
+							add(request, bankInterestRequest);
+
+							produce(bankInterestRequest);
+						}
+					} catch (JMSException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+
+		consume("bankInterestReplyQueue", new MessageListener() {
+			@Override
+			public void onMessage(Message msg) {
+				if(msg instanceof ObjectMessage) {
+					Serializable obj = null;
+					System.out.println("Passed onMessage");
+
+					try {
+						obj = (Serializable)((ObjectMessage) msg).getObject();
+						System.out.println("Passed Object");
+
+						if(obj instanceof BankInterestReply) {
+							BankInterestReply reply = (BankInterestReply) obj;
+							LoanRequest request = (LoanRequest) reply.getLoanRequest();
+
+							System.out.println("Reply: " + reply);
+							System.out.println("Request: " + request);
+
+							add(request, reply);
+
+							LoanReply loanReply = new LoanReply(reply.getInterest(), reply.getQuoteId());
+							loanReply.setLoanRequest(request);
+
+							produce(loanReply);
+						}
+					} catch (JMSException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		});
 	}
 
 	private JListLine getRequestReply(LoanRequest request){
@@ -215,11 +278,14 @@ public class LoanBrokerFrame extends JFrame {
 	private void openJMSConnection() {
 		try {
 			ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
-			connection = factory.createConnection();
-			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
 			// Trust all serializable classes
 			factory.setTrustAllPackages(true);
+
+			connection = factory.createConnection();
+			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+
 
 			loanRequestQueue = session.createQueue("loanRequestQueue");
 			loanReplyQueue = session.createQueue("loanReplyQueue");
