@@ -113,16 +113,14 @@ public class LoanBrokerFrame extends JFrame {
 			public void onMessage(Message msg) {
 				if(msg instanceof ObjectMessage) {
 					Serializable obj = null;
-					System.out.println("Passed onMessage");
 
 					try {
 						obj = (Serializable)((ObjectMessage) msg).getObject();
-						System.out.println("Passed Object");
 
 						if(obj instanceof LoanRequest) {
 							LoanRequest request = (LoanRequest) obj;
 
-							System.out.println("Request: " + request);
+							System.out.println("BROKER: Request: " + request);
 
 							BankInterestRequest bankInterestRequest = new BankInterestRequest(request.getAmount(), request.getTime());
 							bankInterestRequest.setLoanRequest(request);
@@ -130,6 +128,7 @@ public class LoanBrokerFrame extends JFrame {
 							add(request);
 							add(request, bankInterestRequest);
 
+							System.out.println("BROKER: Send BankInterestRequest");
 							produce(bankInterestRequest);
 						}
 					} catch (JMSException e) {
@@ -139,29 +138,28 @@ public class LoanBrokerFrame extends JFrame {
 			}
 		});
 
-		consume("bankInterestReplyQueue", new MessageListener() {
+		consume("bankInterestRequestQueue", new MessageListener() {
 			@Override
 			public void onMessage(Message msg) {
 				if(msg instanceof ObjectMessage) {
 					Serializable obj = null;
-					System.out.println("Passed onMessage");
 
 					try {
 						obj = (Serializable)((ObjectMessage) msg).getObject();
-						System.out.println("Passed Object");
 
 						if(obj instanceof BankInterestReply) {
 							BankInterestReply reply = (BankInterestReply) obj;
 							LoanRequest request = (LoanRequest) reply.getLoanRequest();
 
-							System.out.println("Reply: " + reply);
-							System.out.println("Request: " + request);
+							System.out.println("BROKER: Reply: " + reply);
+							System.out.println("BROKER: Request: " + request);
 
 							add(request, reply);
 
 							LoanReply loanReply = new LoanReply(reply.getInterest(), reply.getQuoteId());
 							loanReply.setLoanRequest(request);
 
+							System.out.println("BROKER: Send LoanReply");
 							produce(loanReply);
 						}
 					} catch (JMSException e) {
@@ -216,21 +214,23 @@ public class LoanBrokerFrame extends JFrame {
 			}
 
 			if(obj instanceof LoanRequest) {
-				System.out.println("Producer set");
+				System.out.println("BROKER: Inside LoanRequest");
 				producer = session.createProducer(loanRequestQueue);
 			} else if (obj instanceof LoanReply) {
-				System.out.println("Producer set");
+				System.out.println("BROKER: Inside LoanReply");
 				producer = session.createProducer(loanReplyQueue);
 			} else if (obj instanceof BankInterestRequest) {
+				System.out.println("BROKER: Inside BankInterestRequest");
 				producer = session.createProducer(bankInterestRequestQueue);
 			} else if (obj instanceof  BankInterestReply) {
+				System.out.println("BROKER: Inside BankInterestReply");
 				producer = session.createProducer(bankInterestReplyQueue);
 			}
 
-			System.out.println("ObjectMessage Created");
+			System.out.println("BROKER: Producer is Set!");
 			ObjectMessage msg = session.createObjectMessage(obj);
 			producer.send(msg);
-			System.out.println("ObjectMessage Send");
+			System.out.println("BROKER: Message Send!");
 		} catch (JMSException e) {
 			e.printStackTrace();
 		} finally {
@@ -257,33 +257,26 @@ public class LoanBrokerFrame extends JFrame {
 			}
 
 			if(queue.equals("loanRequestQueue")) {
-				System.out.println("Consume set");
+				System.out.println("BROKER: Inside LoanRequest");
 				consumer = session.createConsumer(loanRequestQueue);
 			} else if(queue.equals("loanReplyQueue")) {
-				System.out.println("Consume set");
+				System.out.println("BROKER: Inside LoanReply");
 				consumer = session.createConsumer(loanReplyQueue);
 			} else if (queue.equals("bankInterestRequestQueue")) {
-				System.out.println("Consume set");
+				System.out.println("BROKER: Inside BankInterestRequest");
 				consumer = session.createConsumer(bankInterestRequestQueue);
 			} else if (queue.equals("bankInterestReplyQueue")) {
-				System.out.println("Consume set");
+				System.out.println("BROKER: Inside BankInterestReply");
 				consumer = session.createConsumer(bankInterestReplyQueue);
 			}
 
-			System.out.println("Get ObjectListener");
+			System.out.println("BROKER: Consumer Set!");
 			consumer.setMessageListener(listener);
+			System.out.println("BROKER: Listener Set!");
 			connection.start();
-			System.out.println("Start Connection");
+			System.out.println("BROKER: Connection started!");
 		} catch (JMSException e) {
 			e.printStackTrace();
-		} finally {
-			if (connection != null) {
-				try {
-					connection.close();
-				} catch (JMSException e) {
-					e.printStackTrace();
-				}
-			}
 		}
 	}
 
@@ -308,7 +301,7 @@ public class LoanBrokerFrame extends JFrame {
 			bankInterestRequestQueue = session.createQueue("bankInterestRequestQueue");
 			bankInterestReplyQueue = session.createQueue("bankInterestReplyQueue");
 
-			System.out.println("Connection Opened");
+			System.out.println("BROKER: Ready to Connect!");
 
 		} catch (JMSException e) {
 			e.printStackTrace();
