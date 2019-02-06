@@ -131,8 +131,10 @@ public class LoanClientFrame extends JFrame {
 				int time = Integer.parseInt(tfTime.getText());				
 				
 				LoanRequest request = new LoanRequest(ssn,amount,time);
-				listModel.addElement( new RequestReply<LoanRequest,LoanReply>(request, null));	
+				listModel.addElement( new RequestReply<LoanRequest,LoanReply>(request, null));
+
 				// todo:  send the JMS with request to Loan Broker
+				produce(request);
 			}
 		});
 		GridBagConstraints gbc_btnQueue = new GridBagConstraints();
@@ -170,10 +172,34 @@ public class LoanClientFrame extends JFrame {
 		 * ======================================================================================
 		 */
 
-		//todo: add logic here.
+		consume("loanReplyQueue", new MessageListener() {
+			@Override
+			public void onMessage(Message msg) {
+				if(msg instanceof ObjectMessage) {
+					Serializable obj = null;
+					System.out.println("Passed onMessage");
 
+					try {
+						obj = (Serializable)((ObjectMessage) msg).getObject();
+						System.out.println("Passed Object");
 
+						if(obj instanceof LoanReply) {
+							LoanReply reply = (LoanReply) obj;
+							LoanRequest request = (LoanRequest)reply.getLoanRequest();
 
+							System.out.println("Reply: " + reply);
+
+							RequestReply<LoanRequest, LoanReply> requestReply = getRequestReply(request);
+							requestReply.setReply(reply);
+							requestReplyList.repaint();
+							System.out.println("Repainted RequestReplyList");
+						}
+					} catch (JMSException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		});
 	}
 
 	/**
@@ -181,24 +207,54 @@ public class LoanClientFrame extends JFrame {
 	 * @param obj
 	 */
 	private void produce(Serializable obj) {
-		if(connection == null) {
-			openJMSConnection();
+		try {
+			if(connection == null) {
+				openJMSConnection();
+			}
+
+			if(obj instanceof LoanRequest) {
+				System.out.println("Producer set");
+				producer = session.createProducer(loanRequestQueue);
+			} else if (obj instanceof LoanReply) {
+				System.out.println("Producer set");
+				producer = session.createProducer(loanReplyQueue);
+			}
+			System.out.println("ObjectMessage Created");
+			ObjectMessage msg = session.createObjectMessage(obj);
+			producer.send(msg);
+			System.out.println("ObjectMessage Send");
+		} catch (JMSException e) {
+			e.printStackTrace();
 		}
-
-		//todo: produce a JMS message
-
 	}
 
 	/**
 	 * This method consumes a JMS message and handles it's request.
-	 * todo: Add params
+	 *
+	 * @param queue
+	 * @param listener
 	 */
-	private void consume() {
-		if(connection == null) {
-			openJMSConnection();
-		}
+	private void consume(String queue, MessageListener listener) {
+		try {
+			if(connection == null) {
+				openJMSConnection();
+			}
 
-		//todo: consume a JMS message
+			if(queue.equals("loanRequestQueue")) {
+				System.out.println("Consume set");
+				consumer = session.createConsumer(loanRequestQueue);
+			} else if(queue.equals("loanReplyQueue")) {
+				System.out.println("Consume set");
+				consumer = session.createConsumer(loanReplyQueue);
+			}
+
+			System.out.println("Get ObjectListener");
+			consumer.setMessageListener(listener);
+			connection.start();
+			System.out.println("Start Connection");
+		} catch (JMSException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -216,6 +272,8 @@ public class LoanClientFrame extends JFrame {
 
 			loanRequestQueue = session.createQueue("loanRequestQueue");
 			loanReplyQueue = session.createQueue("loanReplyQueue");
+
+			System.out.println("Connection Opened");
 
 		} catch (JMSException e) {
 			e.printStackTrace();
