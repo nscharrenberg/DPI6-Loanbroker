@@ -1,5 +1,6 @@
 package applications.loanclient;
 import mix.messaging.GLOBALS;
+import mix.messaging.MessageQueue;
 import mix.messaging.requestreply.RequestReply;
 import mix.model.loan.LoanReply;
 import mix.model.loan.LoanRequest;
@@ -39,22 +40,6 @@ public class LoanClientFrame extends JFrame {
 	private JLabel lblNewLabel;
 	private JLabel lblNewLabel_1;
 	private JTextField tfTime;
-
-	/**
-	 * JMS Variables
-	 */
-	private Connection connection = null;
-	private Session session = null;
-
-	private Destination sendDestination = null;
-
-	private MessageProducer producer = null;
-	private MessageConsumer consumer = null;
-
-	// Queues
-	private Queue loanRequestQueue = null;
-	private Queue loanReplyQueue = null;
-
 
 	/**
 	 * Create the frame.
@@ -136,7 +121,7 @@ public class LoanClientFrame extends JFrame {
 				listModel.addElement( new RequestReply<LoanRequest,LoanReply>(request, null));
 
 				// todo:  send the JMS with request to Loan Broker
-				produce(request);
+				new MessageQueue().produce(request);
 			}
 		});
 		GridBagConstraints gbc_btnQueue = new GridBagConstraints();
@@ -174,120 +159,29 @@ public class LoanClientFrame extends JFrame {
 		 * ======================================================================================
 		 */
 
-		consume(GLOBALS.loanReplyQueue, new MessageListener() {
+		new MessageQueue().consume(GLOBALS.loanReplyQueue, new MessageListener() {
 			@Override
 			public void onMessage(Message msg) {
 				if(msg instanceof ObjectMessage) {
 					Serializable obj = null;
-					System.out.println("Passed onMessage");
 
 					try {
 						obj = (Serializable)((ObjectMessage) msg).getObject();
-						System.out.println("Passed Object");
-
-						if(obj instanceof LoanReply) {
-							LoanReply reply = (LoanReply) obj;
-							LoanRequest request = (LoanRequest)reply.getLoanRequest();
-
-							System.out.println("Reply: " + reply);
-
-							RequestReply<LoanRequest, LoanReply> requestReply = getRequestReply(request);
-							requestReply.setReply(reply);
-							requestReplyList.repaint();
-							System.out.println("Repainted RequestReplyList");
-						}
 					} catch (JMSException e) {
 						e.printStackTrace();
+					}
+
+					if(obj instanceof LoanReply) {
+						LoanReply reply = (LoanReply) obj;
+						LoanRequest request = (LoanRequest)reply.getLoanRequest();
+
+						RequestReply<LoanRequest, LoanReply> requestReply = getRequestReply(request);
+						requestReply.setReply(reply);
+						requestReplyList.repaint();
 					}
 				}
 			}
 		});
-	}
-
-	/**
-	 * This method produces a JMS message and sends it to the Queue.
-	 * @param obj
-	 */
-	private void produce(Serializable obj) {
-		try {
-			if(connection == null) {
-				openJMSConnection();
-			}
-
-			if(obj instanceof LoanRequest) {
-				System.out.println("Producer set");
-				producer = session.createProducer(loanRequestQueue);
-			} else if (obj instanceof LoanReply) {
-				System.out.println("Producer set");
-				producer = session.createProducer(loanReplyQueue);
-			}
-			System.out.println("ObjectMessage Created");
-			ObjectMessage msg = session.createObjectMessage(obj);
-			producer.send(msg);
-			System.out.println("ObjectMessage Send");
-		} catch (JMSException e) {
-			e.printStackTrace();
-		} finally {
-			if (connection != null) {
-				try {
-					connection.close();
-				} catch (JMSException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
-	/**
-	 * This method consumes a JMS message and handles it's request.
-	 *
-	 * @param queue
-	 * @param listener
-	 */
-	private void consume(String queue, MessageListener listener) {
-		try {
-			if(connection == null) {
-				openJMSConnection();
-			}
-
-			if(queue.equals(GLOBALS.loanRequestQueue)) {
-				System.out.println("Consume set");
-				consumer = session.createConsumer(loanRequestQueue);
-			} else if(queue.equals(GLOBALS.loanReplyQueue)) {
-				System.out.println("Consume set");
-				consumer = session.createConsumer(loanReplyQueue);
-			}
-
-			System.out.println("Get ObjectListener");
-			consumer.setMessageListener(listener);
-			connection.start();
-			System.out.println("Start Connection");
-		} catch (JMSException e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * This method initiates the JMS connection for the Queue's.
-	 * It establishes an ActiveMQ connection and the corresponding Queue's.
-	 */
-	private void openJMSConnection() {
-		try {
-			ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
-			connection = factory.createConnection();
-			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-
-			// Trust all serializable classes
-			factory.setTrustAllPackages(true);
-
-			loanRequestQueue = session.createQueue(GLOBALS.loanRequestQueue);
-			loanReplyQueue = session.createQueue(GLOBALS.loanReplyQueue);
-
-			System.out.println("Connection Opened");
-
-		} catch (JMSException e) {
-			e.printStackTrace();
-		}
 	}
 	
 	/**
