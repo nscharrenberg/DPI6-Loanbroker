@@ -78,6 +78,7 @@ public class LoanClientFrame extends JFrame {
 
 						RequestReply<LoanRequest, LoanReply> requestReply = getRequestReply(request);
 						requestReply.setReply(reply);
+						System.out.println("End Reply: " + requestReply.getReply());
 						requestReplyList.repaint();
 					}
 				}
@@ -191,6 +192,11 @@ public class LoanClientFrame extends JFrame {
    private RequestReply<LoanRequest,LoanReply> getRequestReply(LoanRequest request){
      for (int i = 0; i < listModel.getSize(); i++){
     	 RequestReply<LoanRequest,LoanReply> rr =listModel.get(i);
+
+		 if(rr.getRequest().getSsn() == request.getSsn() && rr.getRequest().getTime() == request.getTime() && rr.getRequest().getAmount() == request.getAmount()) {
+			 return rr;
+		 }
+
     	 if (rr.getRequest() == request){
     		 return rr;
     	 }
