@@ -7,7 +7,11 @@ import mix.model.loan.LoanRequest;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 import javax.jms.*;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import java.io.Serializable;
+import java.util.Properties;
 
 public class MessageQueue {
     private Connection connection;
@@ -16,11 +20,11 @@ public class MessageQueue {
     private MessageProducer producer;
     private MessageConsumer consumer;
 
-    // Queues
-    private Queue loanRequestQueue;
-    private Queue loanReplyQueue;
-    private Queue bankInterestRequestQueue;
-    private Queue bankInterestReplyQueue;
+    // Destinations
+    private Destination loanRequestDestination;
+    private Destination loanReplyDestination;
+    private Destination bankInterestRequestDestination;
+    private Destination bankInterestReplyDestination;
 
     public static String loanRequest =  "loanRequestQueue";
     public static String loanReply = "loanReplyQueue";
@@ -32,10 +36,10 @@ public class MessageQueue {
         this.session = null;
         this.producer = null;
         this.consumer = null;
-        this.loanRequestQueue = null;
-        this.loanReplyQueue = null;
-        this.bankInterestRequestQueue = null;
-        this.bankInterestReplyQueue = null;
+        this.loanRequestDestination = null;
+        this.loanReplyDestination = null;
+        this.bankInterestRequestDestination = null;
+        this.bankInterestReplyDestination = null;
     }
 
     /**
@@ -49,13 +53,13 @@ public class MessageQueue {
             }
 
             if(obj instanceof LoanRequest) {
-                producer = session.createProducer(loanRequestQueue);
+                producer = session.createProducer(loanRequestDestination);
             } else if (obj instanceof LoanReply) {
-                producer = session.createProducer(loanReplyQueue);
+                producer = session.createProducer(loanReplyDestination);
             }else if (obj instanceof BankInterestRequest) {
-                producer = session.createProducer(bankInterestRequestQueue);
+                producer = session.createProducer(bankInterestRequestDestination);
             } else if (obj instanceof BankInterestReply) {
-                producer = session.createProducer(bankInterestReplyQueue);
+                producer = session.createProducer(bankInterestReplyDestination);
             }
 
             ObjectMessage msg = session.createObjectMessage(obj);
@@ -86,13 +90,13 @@ public class MessageQueue {
             }
 
             if(queue.equals(loanRequest)) {
-                consumer = session.createConsumer(loanRequestQueue);
+                consumer = session.createConsumer(loanRequestDestination);
             } else if(queue.equals(loanReply)) {
-                consumer = session.createConsumer(loanReplyQueue);
+                consumer = session.createConsumer(loanReplyDestination);
             } else if (queue.equals(bankInterestRequest)) {
-                consumer = session.createConsumer(bankInterestRequestQueue);
+                consumer = session.createConsumer(bankInterestRequestDestination);
             } else if (queue.equals(bankInterestReply)) {
-                consumer = session.createConsumer(bankInterestReplyQueue);
+                consumer = session.createConsumer(bankInterestReplyDestination);
             }
 
             consumer.setMessageListener(listener);
@@ -108,16 +112,26 @@ public class MessageQueue {
      */
     private void openJMSConnection() {
         try {
-            ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
+            Properties props = new Properties();
+            props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+            props.setProperty(Context.PROVIDER_URL, "tcp://localhost:61616");
+            props.put(("queue." + loanRequest), loanRequest);
+            props.put(("queue." + loanReply), loanReply);
+            props.put(("queue." + bankInterestRequest), bankInterestRequest);
+            props.put(("queue." + bankInterestReply), bankInterestReply);
+
+            Context jndiContext = new InitialContext(props);
+
+            ActiveMQConnectionFactory factory = (ActiveMQConnectionFactory) jndiContext.lookup("ConnectionFactory");
             factory.setTrustAllPackages(true);
             connection = factory.createConnection();
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-            loanRequestQueue = session.createQueue(loanRequest);
-            loanReplyQueue = session.createQueue(loanReply);
-            bankInterestRequestQueue = session.createQueue(bankInterestRequest);
-            bankInterestReplyQueue = session.createQueue(bankInterestReply);
-        } catch (JMSException e) {
+            loanRequestDestination = (Destination) jndiContext.lookup(loanRequest);
+            loanReplyDestination = (Destination) jndiContext.lookup(loanReply);
+            bankInterestRequestDestination = (Destination) jndiContext.lookup(bankInterestRequest);
+            bankInterestReplyDestination = (Destination) jndiContext.lookup(bankInterestReply);
+        } catch (JMSException | NamingException e) {
             e.printStackTrace();
         }
     }
