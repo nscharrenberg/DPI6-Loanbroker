@@ -45,6 +45,47 @@ public class LoanClientFrame extends JFrame {
 	 * Create the frame.
 	 */
 	public LoanClientFrame() {
+		/**
+		 * Process
+		 * ======================================================================================
+		 * 1. Client should request a loan, it sends the LoanRequest object to the Loan Broker.  <===
+		 * 2. The Loan Broker consumes the LoanRequest object from the client.
+		 * 3. The Loan Broker converts the LoanRequest into a BankInterestRequest.
+		 * 4. The Loan Broker sends the BankInterestRequest to the Bank.
+		 * 5. The Bank consumes the BankInterestRequest from the Loan Broker.
+		 * 6. An person sets an interest rate and converts it into a BankInterestReply.
+		 * 7. The Bank sends the BankInterestReply back to the Loan Broker.
+		 * 8. The Loan Broker consumes the BankInterestReply from the Bank.
+		 * 9. The Loan Broker converts the BankInterestReply into a LoanReply.
+		 * 10. The Loan Broker sends the LoanReply back to the Client.
+		 * 11. The Client consumes the LoanReply.												 <===
+		 * ======================================================================================
+		 */
+
+		new MessageQueue().consume(GLOBALS.loanReplyQueue, new MessageListener() {
+			@Override
+			public void onMessage(Message msg) {
+				if(msg instanceof ObjectMessage) {
+					Serializable obj = null;
+
+					try {
+						obj = (Serializable)((ObjectMessage) msg).getObject();
+					} catch (JMSException e) {
+						e.printStackTrace();
+					}
+
+					if(obj instanceof LoanReply) {
+						LoanReply reply = (LoanReply) obj;
+						LoanRequest request = (LoanRequest)reply.getLoanRequest();
+
+						RequestReply<LoanRequest, LoanReply> requestReply = getRequestReply(request);
+						requestReply.setReply(reply);
+						requestReplyList.repaint();
+					}
+				}
+			}
+		});
+
 		setTitle("Loan Client");
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -141,47 +182,6 @@ public class LoanClientFrame extends JFrame {
 		
 		requestReplyList = new JList<RequestReply<LoanRequest,LoanReply>>(listModel);
 		scrollPane.setViewportView(requestReplyList);
-
-		/**
-		 * Process
-		 * ======================================================================================
-		 * 1. Client should request a loan, it sends the LoanRequest object to the Loan Broker.  <===
-		 * 2. The Loan Broker consumes the LoanRequest object from the client.
-		 * 3. The Loan Broker converts the LoanRequest into a BankInterestRequest.
-		 * 4. The Loan Broker sends the BankInterestRequest to the Bank.
-		 * 5. The Bank consumes the BankInterestRequest from the Loan Broker.
-		 * 6. An person sets an interest rate and converts it into a BankInterestReply.
-		 * 7. The Bank sends the BankInterestReply back to the Loan Broker.
-		 * 8. The Loan Broker consumes the BankInterestReply from the Bank.
-		 * 9. The Loan Broker converts the BankInterestReply into a LoanReply.
-		 * 10. The Loan Broker sends the LoanReply back to the Client.
-		 * 11. The Client consumes the LoanReply.												 <===
-		 * ======================================================================================
-		 */
-
-		new MessageQueue().consume(GLOBALS.loanReplyQueue, new MessageListener() {
-			@Override
-			public void onMessage(Message msg) {
-				if(msg instanceof ObjectMessage) {
-					Serializable obj = null;
-
-					try {
-						obj = (Serializable)((ObjectMessage) msg).getObject();
-					} catch (JMSException e) {
-						e.printStackTrace();
-					}
-
-					if(obj instanceof LoanReply) {
-						LoanReply reply = (LoanReply) obj;
-						LoanRequest request = (LoanRequest)reply.getLoanRequest();
-
-						RequestReply<LoanRequest, LoanReply> requestReply = getRequestReply(request);
-						requestReply.setReply(reply);
-						requestReplyList.repaint();
-					}
-				}
-			}
-		});
 	}
 	
 	/**

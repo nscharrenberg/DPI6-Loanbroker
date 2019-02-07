@@ -158,7 +158,12 @@ public class LoanBrokerFrame extends JFrame {
 	private JListLine getRequestReply(LoanRequest request){
 
 		for (int i = 0; i < listModel.getSize(); i++){
-			JListLine rr =listModel.get(i);
+			JListLine rr = listModel.get(i);
+
+			if(rr.getLoanRequest().getSsn() == request.getSsn() && rr.getLoanRequest().getTime() == request.getTime() && rr.getLoanRequest().getAmount() == request.getAmount()) {
+				return rr;
+			}
+
 			if (rr.getLoanRequest() == request){
 				return rr;
 			}
