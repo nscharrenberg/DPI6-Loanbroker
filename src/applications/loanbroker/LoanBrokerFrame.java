@@ -1,13 +1,10 @@
 package applications.loanbroker;
 
-import mix.messaging.GLOBALS;
 import mix.messaging.MessageQueue;
-import mix.messaging.requestreply.RequestReply;
 import mix.model.bank.BankInterestReply;
 import mix.model.bank.BankInterestRequest;
 import mix.model.loan.LoanReply;
 import mix.model.loan.LoanRequest;
-import org.apache.activemq.ActiveMQConnectionFactory;
 
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
@@ -68,7 +65,7 @@ public class LoanBrokerFrame extends JFrame {
 		 * 11. The Client consumes the LoanReply.
 		 * ======================================================================================
 		 */
-		new MessageQueue().consume(GLOBALS.loanRequestQueue, new MessageListener() {
+		new MessageQueue().consume(MessageQueue.loanRequest, new MessageListener() {
 			@Override
 			public void onMessage(Message msg) {
 				if(msg instanceof ObjectMessage) {
@@ -98,7 +95,7 @@ public class LoanBrokerFrame extends JFrame {
 			}
 		});
 
-		new MessageQueue().consume(GLOBALS.bankInterestReplyQueue, new MessageListener() {
+		new MessageQueue().consume(MessageQueue.bankInterestReply, new MessageListener() {
 			@Override
 			public void onMessage(Message msg) {
 				if(msg instanceof ObjectMessage) {

@@ -22,6 +22,11 @@ public class MessageQueue {
     private Queue bankInterestRequestQueue;
     private Queue bankInterestReplyQueue;
 
+    public static String loanRequest =  "loanRequestQueue";
+    public static String loanReply = "loanReplyQueue";
+    public static String bankInterestRequest = "loanBankInterestRequestQueue";
+    public static String bankInterestReply = "bankInterestReplyQueue";
+
     public MessageQueue() {
         this.connection = null;
         this.session = null;
@@ -80,13 +85,13 @@ public class MessageQueue {
                 openJMSConnection();
             }
 
-            if(queue.equals(GLOBALS.loanRequestQueue)) {
+            if(queue.equals(loanRequest)) {
                 consumer = session.createConsumer(loanRequestQueue);
-            } else if(queue.equals(GLOBALS.loanReplyQueue)) {
+            } else if(queue.equals(loanReply)) {
                 consumer = session.createConsumer(loanReplyQueue);
-            } else if (queue.equals(GLOBALS.bankInterestRequestQueue)) {
+            } else if (queue.equals(bankInterestRequest)) {
                 consumer = session.createConsumer(bankInterestRequestQueue);
-            } else if (queue.equals(GLOBALS.bankInterestReplyQueue)) {
+            } else if (queue.equals(bankInterestReply)) {
                 consumer = session.createConsumer(bankInterestReplyQueue);
             }
 
@@ -108,10 +113,10 @@ public class MessageQueue {
             connection = factory.createConnection();
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-            loanRequestQueue = session.createQueue(GLOBALS.loanRequestQueue);
-            loanReplyQueue = session.createQueue(GLOBALS.loanReplyQueue);
-            bankInterestRequestQueue = session.createQueue(GLOBALS.bankInterestRequestQueue);
-            bankInterestReplyQueue = session.createQueue(GLOBALS.bankInterestReplyQueue);
+            loanRequestQueue = session.createQueue(loanRequest);
+            loanReplyQueue = session.createQueue(loanReply);
+            bankInterestRequestQueue = session.createQueue(bankInterestRequest);
+            bankInterestReplyQueue = session.createQueue(bankInterestReply);
         } catch (JMSException e) {
             e.printStackTrace();
         }
