@@ -1,5 +1,6 @@
 package applications.loanbroker;
 
+import mix.messaging.GLOBALS;
 import mix.messaging.requestreply.RequestReply;
 import mix.model.bank.BankInterestReply;
 import mix.model.bank.BankInterestRequest;
@@ -108,7 +109,7 @@ public class LoanBrokerFrame extends JFrame {
 		 * 11. The Client consumes the LoanReply.
 		 * ======================================================================================
 		 */
-		consume("loanRequestQueue", new MessageListener() {
+		consume(GLOBALS.loanRequestQueue, new MessageListener() {
 			@Override
 			public void onMessage(Message msg) {
 				if(msg instanceof ObjectMessage) {
@@ -138,7 +139,7 @@ public class LoanBrokerFrame extends JFrame {
 			}
 		});
 
-		consume("bankInterestRequestQueue", new MessageListener() {
+		consume(GLOBALS.bankInterestReplyQueue, new MessageListener() {
 			@Override
 			public void onMessage(Message msg) {
 				if(msg instanceof ObjectMessage) {
@@ -256,16 +257,17 @@ public class LoanBrokerFrame extends JFrame {
 				openJMSConnection();
 			}
 
-			if(queue.equals("loanRequestQueue")) {
+			System.out.println("Queue: " + queue);
+			if(queue.equals(GLOBALS.loanRequestQueue)) {
 				System.out.println("BROKER: Inside LoanRequest");
 				consumer = session.createConsumer(loanRequestQueue);
-			} else if(queue.equals("loanReplyQueue")) {
+			} else if(queue.equals(GLOBALS.loanReplyQueue)) {
 				System.out.println("BROKER: Inside LoanReply");
 				consumer = session.createConsumer(loanReplyQueue);
-			} else if (queue.equals("bankInterestRequestQueue")) {
+			} else if (queue.equals(GLOBALS.bankInterestRequestQueue)) {
 				System.out.println("BROKER: Inside BankInterestRequest");
 				consumer = session.createConsumer(bankInterestRequestQueue);
-			} else if (queue.equals("bankInterestReplyQueue")) {
+			} else if (queue.equals(GLOBALS.bankInterestReplyQueue)) {
 				System.out.println("BROKER: Inside BankInterestReply");
 				consumer = session.createConsumer(bankInterestReplyQueue);
 			}
@@ -296,10 +298,10 @@ public class LoanBrokerFrame extends JFrame {
 
 
 
-			loanRequestQueue = session.createQueue("loanRequestQueue");
-			loanReplyQueue = session.createQueue("loanReplyQueue");
-			bankInterestRequestQueue = session.createQueue("bankInterestRequestQueue");
-			bankInterestReplyQueue = session.createQueue("bankInterestReplyQueue");
+			loanRequestQueue = session.createQueue(GLOBALS.loanRequestQueue);
+			loanReplyQueue = session.createQueue(GLOBALS.loanReplyQueue);
+			bankInterestRequestQueue = session.createQueue(GLOBALS.bankInterestRequestQueue);
+			bankInterestReplyQueue = session.createQueue(GLOBALS.bankInterestReplyQueue);
 
 			System.out.println("BROKER: Ready to Connect!");
 

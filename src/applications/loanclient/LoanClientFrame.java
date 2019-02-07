@@ -1,4 +1,5 @@
 package applications.loanclient;
+import mix.messaging.GLOBALS;
 import mix.messaging.requestreply.RequestReply;
 import mix.model.loan.LoanReply;
 import mix.model.loan.LoanRequest;
@@ -53,6 +54,7 @@ public class LoanClientFrame extends JFrame {
 	// Queues
 	private Queue loanRequestQueue = null;
 	private Queue loanReplyQueue = null;
+
 
 	/**
 	 * Create the frame.
@@ -172,7 +174,7 @@ public class LoanClientFrame extends JFrame {
 		 * ======================================================================================
 		 */
 
-		consume("loanReplyQueue", new MessageListener() {
+		consume(GLOBALS.loanReplyQueue, new MessageListener() {
 			@Override
 			public void onMessage(Message msg) {
 				if(msg instanceof ObjectMessage) {
@@ -248,10 +250,10 @@ public class LoanClientFrame extends JFrame {
 				openJMSConnection();
 			}
 
-			if(queue.equals("loanRequestQueue")) {
+			if(queue.equals(GLOBALS.loanRequestQueue)) {
 				System.out.println("Consume set");
 				consumer = session.createConsumer(loanRequestQueue);
-			} else if(queue.equals("loanReplyQueue")) {
+			} else if(queue.equals(GLOBALS.loanReplyQueue)) {
 				System.out.println("Consume set");
 				consumer = session.createConsumer(loanReplyQueue);
 			}
@@ -278,8 +280,8 @@ public class LoanClientFrame extends JFrame {
 			// Trust all serializable classes
 			factory.setTrustAllPackages(true);
 
-			loanRequestQueue = session.createQueue("loanRequestQueue");
-			loanReplyQueue = session.createQueue("loanReplyQueue");
+			loanRequestQueue = session.createQueue(GLOBALS.loanRequestQueue);
+			loanReplyQueue = session.createQueue(GLOBALS.loanReplyQueue);
 
 			System.out.println("Connection Opened");
 

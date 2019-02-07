@@ -1,4 +1,5 @@
 package applications.bank;
+import mix.messaging.GLOBALS;
 import mix.messaging.requestreply.RequestReply;
 import mix.model.bank.BankInterestReply;
 import mix.model.bank.BankInterestRequest;
@@ -155,7 +156,7 @@ public class JMSBankFrame extends JFrame {
 		 * 11. The Client consumes the LoanReply.
 		 * ======================================================================================
 		 */
-		consume("bankInterestRequestQueue", new MessageListener() {
+		consume(GLOBALS.bankInterestRequestQueue, new MessageListener() {
 			@Override
 			public void onMessage(Message msg) {
 				if(msg instanceof ObjectMessage) {
@@ -222,7 +223,7 @@ public class JMSBankFrame extends JFrame {
 				openJMSConnection();
 			}
 
-			if (queue.equals("bankInterestRequestQueue")) {
+			if (queue.equals(GLOBALS.bankInterestRequestQueue)) {
 				System.out.println("BANK: INSIDE BankInterestRequestQueue");
 				consumer = session.createConsumer(bankInterestRequestQueue);
 				System.out.println("BANK: Consumer has been Set!");
@@ -252,8 +253,8 @@ public class JMSBankFrame extends JFrame {
 			connection = factory.createConnection();
 			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-			bankInterestRequestQueue = session.createQueue("bankInterestRequestQueue");
-			bankInterestReplyQueue = session.createQueue("bankInterestReplyQueue");
+			bankInterestRequestQueue = session.createQueue(GLOBALS.bankInterestRequestQueue);
+			bankInterestReplyQueue = session.createQueue(GLOBALS.bankInterestReplyQueue);
 
 			System.out.println("BANK: Ready to connect!");
 
