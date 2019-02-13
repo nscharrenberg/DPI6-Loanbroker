@@ -23,10 +23,40 @@ public class MessageQueue {
 
     public MessageQueue() {
         System.setProperty("org.apache.activemq.SERIALIZABLE_PACKAGES","*");
-
-
+        openJMSConnection();
     }
 
+    public Destination getLoanRequestDestination() {
+        return loanRequestDestination;
+    }
+
+    public void setLoanRequestDestination(Destination loanRequestDestination) {
+        this.loanRequestDestination = loanRequestDestination;
+    }
+
+    public Destination getLoanReplyDestination() {
+        return loanReplyDestination;
+    }
+
+    public void setLoanReplyDestination(Destination loanReplyDestination) {
+        this.loanReplyDestination = loanReplyDestination;
+    }
+
+    public Destination getBankInterestRequestDestination() {
+        return bankInterestRequestDestination;
+    }
+
+    public void setBankInterestRequestDestination(Destination bankInterestRequestDestination) {
+        this.bankInterestRequestDestination = bankInterestRequestDestination;
+    }
+
+    public Destination getBankInterestReplyDestination() {
+        return bankInterestReplyDestination;
+    }
+
+    public void setBankInterestReplyDestination(Destination bankInterestReplyDestination) {
+        this.bankInterestReplyDestination = bankInterestReplyDestination;
+    }
 
     /**
      * This method initiates the JMS connection for the Queue's.
@@ -48,6 +78,15 @@ public class MessageQueue {
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
         } catch (NamingException | JMSException e) {
             e.printStackTrace();
+        }
+    }
+
+    public Destination createDestination(String destinationId) {
+        try {
+            return (Destination) jndiContext.lookup(destinationId);
+        } catch (NamingException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 

@@ -5,7 +5,13 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
 
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageListener;
+import javax.jms.ObjectMessage;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -16,7 +22,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import messaging.MessageQueue;
+import messaging.QueueNames;
 import messaging.requestreply.RequestReply;
+import model.bank.BankInterestReply;
 import model.loan.*;
 
 public class LoanClientFrame extends JFrame {
@@ -34,6 +43,9 @@ public class LoanClientFrame extends JFrame {
 	private JLabel lblNewLabel;
 	private JLabel lblNewLabel_1;
 	private JTextField tfTime;
+
+	private Map<String, RequestReply<LoanRequest, LoanReply>> requestReplyHashMap = new HashMap<>();
+	private MessageQueue messageQueue = new MessageQueue();
 
 	/**
 	 * Create the frame.
@@ -112,8 +124,12 @@ public class LoanClientFrame extends JFrame {
 				int time = Integer.parseInt(tfTime.getText());				
 				
 				LoanRequest request = new LoanRequest(ssn,amount,time);
-				listModel.addElement( new RequestReply<LoanRequest,LoanReply>(request, null));	
-				// to do:  send the JMS with request to Loan Broker
+				RequestReply<LoanRequest, LoanReply> requestReply = new RequestReply<>(request, null);
+				listModel.addElement(requestReply);
+				messageQueue.setLoanRequestDestination(messageQueue.createDestination(QueueNames.loanRequest));
+
+				String messageId = messageQueue.produce(request, messageQueue.getLoanRequestDestination(), null);
+				requestReplyHashMap.put(messageId, requestReply);
 			}
 		});
 		GridBagConstraints gbc_btnQueue = new GridBagConstraints();
@@ -132,8 +148,30 @@ public class LoanClientFrame extends JFrame {
 		contentPane.add(scrollPane, gbc_scrollPane);
 		
 		requestReplyList = new JList<RequestReply<LoanRequest,LoanReply>>(listModel);
-		scrollPane.setViewportView(requestReplyList);	
-       
+		scrollPane.setViewportView(requestReplyList);
+
+		consumeLoanReply();
+	}
+
+	private void consumeLoanReply() {
+		messageQueue.setLoanReplyDestination(messageQueue.createDestination(QueueNames.loanReply));
+		messageQueue.consume(messageQueue.getLoanReplyDestination(), new MessageListener() {
+			@Override
+			public void onMessage(Message message) {
+				LoanReply loanReply = null;
+				String correlationId = null;
+
+				try {
+					loanReply = (LoanReply) ((ObjectMessage) message).getObject();
+					correlationId = message.getJMSCorrelationID();
+
+					RequestReply<LoanRequest, LoanReply> requestReply = requestReplyHashMap.get(correlationId);
+					requestReply.setReply(loanReply);
+				} catch (JMSException e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 	
 	/**
