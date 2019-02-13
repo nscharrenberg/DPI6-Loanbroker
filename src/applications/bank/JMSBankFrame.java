@@ -12,6 +12,8 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.jms.*;
 import javax.swing.DefaultListModel;
@@ -33,6 +35,8 @@ public class JMSBankFrame extends JFrame {
 	private JPanel contentPane;
 	private JTextField tfReply;
 	private DefaultListModel<RequestReply<BankInterestRequest, BankInterestReply>> listModel = new DefaultListModel<RequestReply<BankInterestRequest, BankInterestReply>>();
+	private MessageQueue messageQueue = MessageQueue.getInstance();
+	private Map<RequestReply<BankInterestRequest, BankInterestReply>, String> requestRepliesWithMessageIds = new HashMap<>();
 	
 	/**
 	 * Launch the application.
@@ -106,14 +110,9 @@ public class JMSBankFrame extends JFrame {
 				if (rr!= null && reply != null){
 					rr.setReply(reply);
 	                list.repaint();
-					// todo: sent JMS message with the reply to Loan Broker
-					LoanRequest request = rr.getRequest().getLoanRequest();
-					System.out.println("BROKER: Get Request: " + request);
-					reply.setLoanRequest(request);
-					System.out.println("BROKER: Get Reply: " + reply);
 
-					new MessageQueue().produce(reply);
-					System.out.println("BROKER: Reply has been Send!");
+					String messageID = requestRepliesWithMessageIds.get(rr);
+					messageQueue.produce(reply, messageQueue.getBankInterestReplyDestination(), messageID);
 				}
 			}
 		});
@@ -139,7 +138,7 @@ public class JMSBankFrame extends JFrame {
 		 * 11. The Client consumes the LoanReply.
 		 * ======================================================================================
 		 */
-		new MessageQueue().consume(MessageQueue.bankInterestRequest, new MessageListener() {
+		messageQueue.consume(MessageQueue.bankInterestRequest, new MessageListener() {
 			@Override
 			public void onMessage(Message msg) {
 				if(msg instanceof ObjectMessage) {
@@ -150,10 +149,9 @@ public class JMSBankFrame extends JFrame {
 
 						if(obj instanceof BankInterestRequest) {
 							BankInterestRequest request = (BankInterestRequest) obj;
-
-							System.out.println("BANK: Request: " + request);
-
-							listModel.addElement(new RequestReply<BankInterestRequest, BankInterestReply>(request, null));
+							RequestReply<BankInterestRequest, BankInterestReply> requestReply = new RequestReply<>(request, null);
+							listModel.addElement(requestReply);
+							requestRepliesWithMessageIds.put(requestReply, msg.getJMSMessageID());
 						}
 					} catch (JMSException e) {
 						e.printStackTrace();

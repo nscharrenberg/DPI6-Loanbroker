@@ -14,6 +14,8 @@ import java.io.Serializable;
 import java.util.Properties;
 
 public class MessageQueue {
+    private static MessageQueue instance = new MessageQueue();
+
     private Connection connection;
     private Session session;
 
@@ -42,30 +44,34 @@ public class MessageQueue {
         this.bankInterestReplyDestination = null;
     }
 
+    public static MessageQueue getInstance() {
+        return instance;
+    }
+
     /**
      * This method produces a JMS message and sends it to the Queue.
      * @param obj
+     * @param messageID
      */
-    public void produce(Serializable obj) {
+    public String produce(Serializable obj, Destination destination, String messageID) {
         try {
             if(connection == null) {
                 openJMSConnection();
             }
 
-            if(obj instanceof LoanRequest) {
-                producer = session.createProducer(loanRequestDestination);
-            } else if (obj instanceof LoanReply) {
-                producer = session.createProducer(loanReplyDestination);
-            }else if (obj instanceof BankInterestRequest) {
-                producer = session.createProducer(bankInterestRequestDestination);
-            } else if (obj instanceof BankInterestReply) {
-                producer = session.createProducer(bankInterestReplyDestination);
-            }
+            producer = session.createProducer(destination);
 
             ObjectMessage msg = session.createObjectMessage(obj);
+
+            if(messageID != null) {
+                msg.setJMSCorrelationID(messageID);
+            }
+
             producer.send(msg);
+            return messageID;
         } catch (JMSException e) {
             e.printStackTrace();
+            return null;
         } finally {
             if (connection != null) {
                 try {
@@ -115,6 +121,7 @@ public class MessageQueue {
             Properties props = new Properties();
             props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
             props.setProperty(Context.PROVIDER_URL, "tcp://localhost:61616");
+            System.out.println(loanRequest);
             props.put(("queue." + loanRequest), loanRequest);
             props.put(("queue." + loanReply), loanReply);
             props.put(("queue." + bankInterestRequest), bankInterestRequest);
@@ -134,5 +141,53 @@ public class MessageQueue {
         } catch (JMSException | NamingException e) {
             e.printStackTrace();
         }
+    }
+
+    public Destination getLoanRequestDestination() {
+        return loanRequestDestination;
+    }
+
+    public Destination getLoanReplyDestination() {
+        return loanReplyDestination;
+    }
+
+    public Destination getBankInterestRequestDestination() {
+        return bankInterestRequestDestination;
+    }
+
+    public Destination getBankInterestReplyDestination() {
+        return bankInterestReplyDestination;
+    }
+
+    public static String getLoanRequest() {
+        return loanRequest;
+    }
+
+    public static String getLoanReply() {
+        return loanReply;
+    }
+
+    public static String getBankInterestRequest() {
+        return bankInterestRequest;
+    }
+
+    public static String getBankInterestReply() {
+        return bankInterestReply;
+    }
+
+    public Connection getConnection() {
+        return connection;
+    }
+
+    public Session getSession() {
+        return session;
+    }
+
+    public MessageProducer getProducer() {
+        return producer;
+    }
+
+    public MessageConsumer getConsumer() {
+        return consumer;
     }
 }

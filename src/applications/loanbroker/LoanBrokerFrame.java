@@ -1,16 +1,22 @@
 package applications.loanbroker;
 
 import mix.messaging.MessageQueue;
+import mix.messaging.requestreply.RequestReply;
 import mix.model.bank.BankInterestReply;
 import mix.model.bank.BankInterestRequest;
 import mix.model.loan.LoanReply;
 import mix.model.loan.LoanRequest;
+import sun.misc.Request;
 
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.jms.*;
 import javax.swing.DefaultListModel;
@@ -30,6 +36,12 @@ public class LoanBrokerFrame extends JFrame {
 	private JPanel contentPane;
 	private DefaultListModel<JListLine> listModel = new DefaultListModel<JListLine>();
 	private JList<JListLine> list;
+	private MessageQueue messageQueue = MessageQueue.getInstance();
+
+	private List<RequestReply<BankInterestRequest, LoanReply>> requestReplies = new ArrayList<>();
+	private Map<String, String> loanInterestWithMessageIds = new HashMap<>();
+	private Map<String, LoanRequest> loanRequestWithMessageIds = new HashMap<>();
+	private Map<String, BankInterestRequest> bankInterestRequestWithMessageIds = new HashMap<>();
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -65,63 +77,61 @@ public class LoanBrokerFrame extends JFrame {
 		 * 11. The Client consumes the LoanReply.
 		 * ======================================================================================
 		 */
-		new MessageQueue().consume(MessageQueue.loanRequest, new MessageListener() {
+		messageQueue.consume(MessageQueue.loanRequest, new MessageListener() {
 			@Override
 			public void onMessage(Message msg) {
-				if(msg instanceof ObjectMessage) {
-					Serializable obj = null;
+				LoanRequest request = null;
+				String messageId = null;
 
-					try {
-						obj = (Serializable)((ObjectMessage) msg).getObject();
-					} catch (JMSException e) {
-						e.printStackTrace();
-					}
-
-					if(obj instanceof LoanRequest) {
-						LoanRequest request = (LoanRequest) obj;
-
-						System.out.println("BROKER: Request: " + request);
-
-						BankInterestRequest bankInterestRequest = new BankInterestRequest(request.getAmount(), request.getTime());
-						bankInterestRequest.setLoanRequest(request);
-
-						add(request);
-						add(request, bankInterestRequest);
-
-						System.out.println("BROKER: Send BankInterestRequest");
-						new MessageQueue().produce(bankInterestRequest);
-					}
+				try {
+					request = (LoanRequest)((ObjectMessage) msg).getObject();
+					messageId = msg.getJMSMessageID();
+					loanRequestWithMessageIds.put(messageId, request);
+				} catch (JMSException e) {
+					e.printStackTrace();
 				}
+
+				BankInterestRequest bankInterestRequest = new BankInterestRequest(request.getAmount(), request.getTime());
+
+				RequestReply<BankInterestRequest, LoanReply> requestReply = new RequestReply<>(bankInterestRequest, null);
+				requestReplies.add(requestReply);
+
+				add(request);
+				add(request, bankInterestRequest);
+
+				String interestMessageId = messageQueue.produce(bankInterestRequest, messageQueue.getBankInterestRequestDestination(), null);
+
+				if(interestMessageId != null) {
+					bankInterestRequestWithMessageIds.put(interestMessageId, bankInterestRequest);
+				}
+
+				loanInterestWithMessageIds.put(interestMessageId, messageId);
 			}
 		});
 
-		new MessageQueue().consume(MessageQueue.bankInterestReply, new MessageListener() {
+		messageQueue.consume(MessageQueue.bankInterestReply, new MessageListener() {
 			@Override
 			public void onMessage(Message msg) {
-				if(msg instanceof ObjectMessage) {
-					Serializable obj = null;
+				BankInterestReply bankInterestReply = null;
+				LoanRequest loanRequest = null;
+				String correlationId = null;
 
-					try {
-						obj = (Serializable)((ObjectMessage) msg).getObject();
-					} catch (JMSException e) {
-						e.printStackTrace();
-					}
+				System.out.println("Received: " + msg);
 
-					if(obj instanceof BankInterestReply) {
-						BankInterestReply reply = (BankInterestReply) obj;
-						LoanRequest request = (LoanRequest) reply.getLoanRequest();
+				try {
+					bankInterestReply = (BankInterestReply) ((ObjectMessage) msg).getObject();
+					correlationId = msg.getJMSCorrelationID();
+					add(loanRequest, bankInterestReply);
 
-						System.out.println("BROKER: Reply: " + reply);
-						System.out.println("BROKER: Request: " + request);
+					String loanMessageId = loanInterestWithMessageIds.get(correlationId);
+					BankInterestRequest bankInterestRequest = bankInterestRequestWithMessageIds.get(correlationId);
+					LoanReply loanReply = new LoanReply(bankInterestReply.getInterest(), bankInterestReply.getQuoteId());
 
-						add(request, reply);
-
-						LoanReply loanReply = new LoanReply(reply.getInterest(), reply.getQuoteId());
-						loanReply.setLoanRequest(request);
-
-						System.out.println("BROKER: Send LoanReply");
-						new MessageQueue().produce(loanReply);
-					}
+					RequestReply<BankInterestRequest, LoanReply> requestReply = requestReplies.stream().filter(rr -> rr.getRequest().equals(bankInterestRequest)).findFirst().get();
+					requestReply.setReply(loanReply);
+					messageQueue.produce(loanReply, messageQueue.getLoanReplyDestination(), loanMessageId);
+				} catch (JMSException e) {
+					e.printStackTrace();
 				}
 			}
 		});
