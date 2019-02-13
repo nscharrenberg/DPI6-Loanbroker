@@ -113,7 +113,6 @@ public class LoanBrokerFrame extends JFrame {
 			@Override
 			public void onMessage(Message msg) {
 				BankInterestReply bankInterestReply = null;
-				LoanRequest loanRequest = null;
 				String correlationId = null;
 
 				System.out.println("Received: " + msg);
@@ -121,7 +120,7 @@ public class LoanBrokerFrame extends JFrame {
 				try {
 					bankInterestReply = (BankInterestReply) ((ObjectMessage) msg).getObject();
 					correlationId = msg.getJMSCorrelationID();
-					add(loanRequest, bankInterestReply);
+
 
 					String loanMessageId = loanInterestWithMessageIds.get(correlationId);
 					BankInterestRequest bankInterestRequest = bankInterestRequestWithMessageIds.get(correlationId);

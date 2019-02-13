@@ -107,7 +107,7 @@ public class JMSBankFrame extends JFrame {
 				RequestReply<BankInterestRequest, BankInterestReply> rr = list.getSelectedValue();
 				double interest = Double.parseDouble((tfReply.getText()));
 				BankInterestReply reply = new BankInterestReply(interest,"ABN AMRO");
-				if (rr!= null && reply != null){
+				if (rr!= null){
 					rr.setReply(reply);
 	                list.repaint();
 

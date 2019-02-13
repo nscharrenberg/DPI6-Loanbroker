@@ -68,7 +68,7 @@ public class MessageQueue {
             }
 
             producer.send(msg);
-            return messageID;
+            return msg.getJMSMessageID();
         } catch (JMSException e) {
             e.printStackTrace();
             return null;
@@ -102,6 +102,7 @@ public class MessageQueue {
             } else if (queue.equals(bankInterestRequest)) {
                 consumer = session.createConsumer(bankInterestRequestDestination);
             } else if (queue.equals(bankInterestReply)) {
+                System.out.println("Consumer here!:");
                 consumer = session.createConsumer(bankInterestReplyDestination);
             }
 
@@ -121,7 +122,6 @@ public class MessageQueue {
             Properties props = new Properties();
             props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
             props.setProperty(Context.PROVIDER_URL, "tcp://localhost:61616");
-            System.out.println(loanRequest);
             props.put(("queue." + loanRequest), loanRequest);
             props.put(("queue." + loanReply), loanReply);
             props.put(("queue." + bankInterestRequest), bankInterestRequest);
