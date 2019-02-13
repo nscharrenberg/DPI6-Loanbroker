@@ -111,12 +111,10 @@ public class JMSBankFrame extends JFrame {
 				if (rr!= null && reply != null){
 					rr.setReply(reply);
 	                list.repaint();
-
-					Destination bankInterestReplyDestination = messageQueue.createDestination(QueueNames.bankInterestReply);
 					String correlationId = bankInterestReply.get(rr);
 					rr.setReply(reply);
 
-					messageQueue.produce(reply, bankInterestReplyDestination, correlationId);
+					messageQueue.produce(reply, QueueNames.bankInterestReply, correlationId);
 				}
 			}
 		});
@@ -130,9 +128,7 @@ public class JMSBankFrame extends JFrame {
 	}
 
 	private void consumeInterestRequest() {
-		Destination bankInterestRequestDestination = messageQueue.createDestination(QueueNames.bankInterestRequest);
-
-		messageQueue.consume(bankInterestRequestDestination, new MessageListener() {
+		messageQueue.consume(QueueNames.bankInterestRequest, new MessageListener() {
 			@Override
 			public void onMessage(Message message) {
 				BankInterestRequest bankInterestRequest = null;

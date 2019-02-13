@@ -5,6 +5,8 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 public class MessageQueue {
@@ -20,6 +22,8 @@ public class MessageQueue {
     private Destination loanReplyDestination;
     private Destination bankInterestRequestDestination;
     private Destination bankInterestReplyDestination;
+
+    Map<String, Destination> destinations = new HashMap<>();
 
     public MessageQueue() {
         System.setProperty("org.apache.activemq.SERIALIZABLE_PACKAGES","*");
@@ -98,11 +102,13 @@ public class MessageQueue {
      * @param messageId
      * @return
      */
-    public String produce(Serializable obj, Destination destination, String messageId) {
+    public String produce(Serializable obj, String destination, String messageId) {
         MessageProducer producer;
 
         try {
-            producer = session.createProducer(destination);
+            Destination sendDestination = createDestination(destination);
+            this.destinations.put(destination, sendDestination);
+            producer = session.createProducer(sendDestination);
             Message msg = session.createObjectMessage(obj);
 
             if(messageId != null) {
@@ -123,11 +129,13 @@ public class MessageQueue {
      * @param destination
      * @param listener
      */
-    public void consume(Destination destination, MessageListener listener) {
+    public void consume(String destination, MessageListener listener) {
         MessageConsumer consumer;
 
         try {
-            consumer = session.createConsumer(destination);
+            Destination receiveDestination = createDestination(destination);
+            this.destinations.put(destination, receiveDestination);
+            consumer = session.createConsumer(receiveDestination);
             connection.start();
             consumer.setMessageListener(listener);
         } catch (JMSException e) {

@@ -88,8 +88,7 @@ public class LoanBrokerFrame extends JFrame {
 	}
 
 	private void consumeLoanRequest() {
-		Destination loanRequestDestination = messageQueue.createDestination(QueueNames.loanRequest);
-		messageQueue.consume(loanRequestDestination, new MessageListener() {
+		messageQueue.consume(QueueNames.loanRequest, new MessageListener() {
 			@Override
 			public void onMessage(Message message) {
 				LoanRequest loanRequest = null;
@@ -107,8 +106,7 @@ public class LoanBrokerFrame extends JFrame {
 					add(loanRequest);
 					add(loanRequest, bankInterestRequest);
 
-					Destination bankInterestRequestDestination = messageQueue.createDestination(QueueNames.bankInterestRequest);
-					String messageId = messageQueue.produce(bankInterestRequest, bankInterestRequestDestination, null);
+					String messageId = messageQueue.produce(bankInterestRequest, QueueNames.bankInterestRequest, null);
 
 					bankInterestRequestWithMessageIds.put(messageId, bankInterestRequest);
 					requestsWithMessageIds.put(messageId, correlationId);
@@ -121,8 +119,7 @@ public class LoanBrokerFrame extends JFrame {
 	}
 
 	private void consumeBankInterestReply() {
-		Destination bankInterestReplyDestination = messageQueue.createDestination(QueueNames.bankInterestReply);
-		messageQueue.consume(bankInterestReplyDestination, new MessageListener() {
+		messageQueue.consume(QueueNames.bankInterestReply, new MessageListener() {
 			@Override
 			public void onMessage(Message message) {
 				BankInterestReply bankInterestReply = null;
@@ -142,8 +139,7 @@ public class LoanBrokerFrame extends JFrame {
 
 					add(loanRequest, bankInterestReply);
 
-					Destination loanReplyDestination = messageQueue.createDestination(QueueNames.loanReply);
-					messageQueue.produce(loanReply, loanReplyDestination, messageId);
+					messageQueue.produce(loanReply, QueueNames.loanReply, messageId);
 				} catch (JMSException e) {
 					e.printStackTrace();
 				}

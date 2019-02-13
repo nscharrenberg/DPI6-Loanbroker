@@ -126,9 +126,8 @@ public class LoanClientFrame extends JFrame {
 				LoanRequest request = new LoanRequest(ssn,amount,time);
 				RequestReply<LoanRequest, LoanReply> requestReply = new RequestReply<>(request, null);
 				listModel.addElement(requestReply);
-				messageQueue.setLoanRequestDestination(messageQueue.createDestination(QueueNames.loanRequest));
 
-				String messageId = messageQueue.produce(request, messageQueue.getLoanRequestDestination(), null);
+				String messageId = messageQueue.produce(request, QueueNames.loanRequest, null);
 				requestReplyHashMap.put(messageId, requestReply);
 			}
 		});
@@ -154,8 +153,7 @@ public class LoanClientFrame extends JFrame {
 	}
 
 	private void consumeLoanReply() {
-		messageQueue.setLoanReplyDestination(messageQueue.createDestination(QueueNames.loanReply));
-		messageQueue.consume(messageQueue.getLoanReplyDestination(), new MessageListener() {
+		messageQueue.consume(QueueNames.loanReply, new MessageListener() {
 			@Override
 			public void onMessage(Message message) {
 				LoanReply loanReply = null;
