@@ -4,7 +4,9 @@ import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.*;
 
+import javax.jms.*;
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JList;
@@ -12,7 +14,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
+import messaging.MessageQueue;
+import messaging.QueueNames;
+import messaging.requestreply.RequestReply;
 import model.bank.*;
+import model.loan.LoanReply;
 import model.loan.LoanRequest;
 
 
@@ -25,6 +31,14 @@ public class LoanBrokerFrame extends JFrame {
 	private JPanel contentPane;
 	private DefaultListModel<JListLine> listModel = new DefaultListModel<JListLine>();
 	private JList<JListLine> list;
+
+	private MessageQueue messageQueue = new MessageQueue();
+
+	// Mapping the message id's of BankInterestRequest with LoanRequest
+	private Map<String, String> requestsWithMessageIds = new HashMap<>();
+	private Map<String, LoanRequest> loanRequestWithMessageIds = new HashMap<>();
+	private Map<String, BankInterestRequest> bankInterestRequestWithMessageIds = new HashMap<>();
+	private List<RequestReply<BankInterestRequest, LoanReply>> requestReplies = new ArrayList<>();
 	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -67,7 +81,69 @@ public class LoanBrokerFrame extends JFrame {
 		contentPane.add(scrollPane, gbc_scrollPane);
 		
 		list = new JList<JListLine>(listModel);
-		scrollPane.setViewportView(list);		
+		scrollPane.setViewportView(list);
+
+		consumeLoanRequest();
+		consumeBankInterestReply();
+	}
+
+	private void consumeLoanRequest() {
+		Destination loanRequestDestination = messageQueue.createDestination(QueueNames.loanRequest);
+		messageQueue.consume(loanRequestDestination, new MessageListener() {
+			@Override
+			public void onMessage(Message message) {
+				LoanRequest loanRequest = null;
+				String correlationId = null;
+
+				try {
+					loanRequest = (LoanRequest)((ObjectMessage) message).getObject();
+					correlationId = message.getJMSMessageID();
+					loanRequestWithMessageIds.put(correlationId, loanRequest);
+
+					BankInterestRequest bankInterestRequest = new BankInterestRequest(loanRequest.getAmount(), loanRequest.getTime());
+					RequestReply<BankInterestRequest, LoanReply> requestReply = new RequestReply<>(bankInterestRequest, null);
+					requestReplies.add(requestReply);
+
+					Destination bankInterestRequestDestination = messageQueue.createDestination(QueueNames.bankInterestRequest);
+					String messageId = messageQueue.produce(bankInterestRequest, bankInterestRequestDestination, null);
+
+					bankInterestRequestWithMessageIds.put(messageId, bankInterestRequest);
+					requestsWithMessageIds.put(messageId, correlationId);
+				} catch (JMSException e) {
+					e.printStackTrace();
+				}
+
+			}
+		});
+	}
+
+	private void consumeBankInterestReply() {
+		Destination bankInterestReplyDestination = messageQueue.createDestination(QueueNames.bankInterestReply);
+		messageQueue.consume(bankInterestReplyDestination, new MessageListener() {
+			@Override
+			public void onMessage(Message message) {
+				BankInterestReply bankInterestReply = null;
+				String correlationId = null;
+
+				try {
+					bankInterestReply = (BankInterestReply) ((ObjectMessage) message).getObject();
+					correlationId = message.getJMSCorrelationID();
+
+					String messageId = requestsWithMessageIds.get(correlationId);
+					BankInterestRequest bankInterestRequest = bankInterestRequestWithMessageIds.get(correlationId);
+					LoanReply loanReply = new LoanReply(bankInterestReply.getInterest(), bankInterestReply.getQuoteId());
+
+					RequestReply<BankInterestRequest, LoanReply> requestReply = requestReplies.stream().filter(o -> o.getRequest().equals(bankInterestRequest)).findFirst().get();
+					requestReply.setReply(loanReply);
+
+					Destination loanReplyDestination = messageQueue.createDestination(QueueNames.loanReply);
+					messageQueue.produce(loanReply, loanReplyDestination, correlationId);
+				} catch (JMSException e) {
+					e.printStackTrace();
+				}
+
+			}
+		});
 	}
 	
 	 private JListLine getRequestReply(LoanRequest request){    
