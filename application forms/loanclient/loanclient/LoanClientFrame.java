@@ -162,11 +162,14 @@ public class LoanClientFrame extends JFrame {
 				String correlationId = null;
 
 				try {
+					System.out.println("LoanReply Received");
 					loanReply = (LoanReply) ((ObjectMessage) message).getObject();
 					correlationId = message.getJMSCorrelationID();
 
 					RequestReply<LoanRequest, LoanReply> requestReply = requestReplyHashMap.get(correlationId);
 					requestReply.setReply(loanReply);
+
+					requestReplyList.repaint();
 				} catch (JMSException e) {
 					e.printStackTrace();
 				}

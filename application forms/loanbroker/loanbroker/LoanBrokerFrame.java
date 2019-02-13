@@ -102,7 +102,10 @@ public class LoanBrokerFrame extends JFrame {
 
 					BankInterestRequest bankInterestRequest = new BankInterestRequest(loanRequest.getAmount(), loanRequest.getTime());
 					RequestReply<BankInterestRequest, LoanReply> requestReply = new RequestReply<>(bankInterestRequest, null);
+
 					requestReplies.add(requestReply);
+					add(loanRequest);
+					add(loanRequest, bankInterestRequest);
 
 					Destination bankInterestRequestDestination = messageQueue.createDestination(QueueNames.bankInterestRequest);
 					String messageId = messageQueue.produce(bankInterestRequest, bankInterestRequestDestination, null);
@@ -135,9 +138,12 @@ public class LoanBrokerFrame extends JFrame {
 
 					RequestReply<BankInterestRequest, LoanReply> requestReply = requestReplies.stream().filter(o -> o.getRequest().equals(bankInterestRequest)).findFirst().get();
 					requestReply.setReply(loanReply);
+					LoanRequest loanRequest = loanRequestWithMessageIds.get(messageId);
+
+					add(loanRequest, bankInterestReply);
 
 					Destination loanReplyDestination = messageQueue.createDestination(QueueNames.loanReply);
-					messageQueue.produce(loanReply, loanReplyDestination, correlationId);
+					messageQueue.produce(loanReply, loanReplyDestination, messageId);
 				} catch (JMSException e) {
 					e.printStackTrace();
 				}
@@ -174,7 +180,7 @@ public class LoanBrokerFrame extends JFrame {
 	public void add(LoanRequest loanRequest, BankInterestReply bankReply){
 		JListLine rr = getRequestReply(loanRequest);
 		if (rr!= null && bankReply != null){
-			rr.setBankReply(bankReply);;
+			rr.setBankReply(bankReply);
             list.repaint();
 		}		
 	}

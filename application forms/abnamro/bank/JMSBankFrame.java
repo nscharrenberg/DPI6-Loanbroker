@@ -5,7 +5,12 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import javax.jms.*;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -16,6 +21,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import messaging.MessageQueue;
+import messaging.QueueNames;
 import model.bank.*;
 import messaging.requestreply.RequestReply;
 
@@ -28,7 +35,10 @@ public class JMSBankFrame extends JFrame {
 	private JPanel contentPane;
 	private JTextField tfReply;
 	private DefaultListModel<RequestReply<BankInterestRequest, BankInterestReply>> listModel = new DefaultListModel<RequestReply<BankInterestRequest, BankInterestReply>>();
-	
+
+	private MessageQueue messageQueue = new MessageQueue();
+	private Map<RequestReply<BankInterestRequest, BankInterestReply>, String> bankInterestReply = new HashMap<>();
+
 	/**
 	 * Launch the application.
 	 */
@@ -101,7 +111,12 @@ public class JMSBankFrame extends JFrame {
 				if (rr!= null && reply != null){
 					rr.setReply(reply);
 	                list.repaint();
-					// todo: sent JMS message with the reply to Loan Broker
+
+					Destination bankInterestReplyDestination = messageQueue.createDestination(QueueNames.bankInterestReply);
+					String correlationId = bankInterestReply.get(rr);
+					rr.setReply(reply);
+
+					messageQueue.produce(reply, bankInterestReplyDestination, correlationId);
 				}
 			}
 		});
@@ -110,6 +125,33 @@ public class JMSBankFrame extends JFrame {
 		gbc_btnSendReply.gridx = 4;
 		gbc_btnSendReply.gridy = 1;
 		contentPane.add(btnSendReply, gbc_btnSendReply);
+
+		consumeInterestRequest();
+	}
+
+	private void consumeInterestRequest() {
+		Destination bankInterestRequestDestination = messageQueue.createDestination(QueueNames.bankInterestRequest);
+
+		messageQueue.consume(bankInterestRequestDestination, new MessageListener() {
+			@Override
+			public void onMessage(Message message) {
+				BankInterestRequest bankInterestRequest = null;
+				String correlationId = null;
+
+				try {
+					bankInterestRequest = (BankInterestRequest)((ObjectMessage) message).getObject();
+					correlationId = message.getJMSMessageID();
+
+					RequestReply<BankInterestRequest, BankInterestReply> requestReply = new RequestReply<>(bankInterestRequest, null);
+					listModel.addElement(requestReply);
+
+					bankInterestReply.put(requestReply, correlationId);
+				} catch (JMSException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+
 	}
 
 }
