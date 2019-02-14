@@ -34,7 +34,7 @@ public class LoanBrokerFrame extends JFrame {
 
 	private MessageQueue messageQueue = new MessageQueue();
 
-	// Mapping the message id's of BankInterestRequest with LoanRequest
+	// Mapping the messaging id's of BankInterestRequest with LoanRequest
 	private Map<String, String> requestsWithMessageIds = new HashMap<>();
 	private Map<String, LoanRequest> loanRequestWithMessageIds = new HashMap<>();
 	private Map<String, BankInterestRequest> bankInterestRequestWithMessageIds = new HashMap<>();

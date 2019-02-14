@@ -95,7 +95,7 @@ public class MessageQueue {
     }
 
     /**
-     * This method produces a JMS message and sends it to the Queue.
+     * This method produces a JMS messaging and sends it to the Queue.
      *
      * @param obj
      * @param destination
@@ -124,7 +124,7 @@ public class MessageQueue {
     }
 
     /**
-     * This method consumes a JMS message and handles it's request.
+     * This method consumes a JMS messaging and handles it's request.
      *
      * @param destination
      * @param listener
