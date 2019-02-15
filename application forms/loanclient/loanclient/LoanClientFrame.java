@@ -5,21 +5,17 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
+import java.util.Observable;
+import java.util.Observer;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import gateways.application.LoanClientApplicationGateway;
+import javafx.application.Platform;
 import messaging.requestreply.RequestReply;
 import model.loan.*;
 
-public class LoanClientFrame extends JFrame {
+public class LoanClientFrame extends JFrame implements Observer {
 
 	/**
 	 * 
@@ -42,6 +38,7 @@ public class LoanClientFrame extends JFrame {
 	 */
 	public LoanClientFrame() {
 		this.loanClientApplicationGateway = new LoanClientApplicationGateway();
+		this.loanClientApplicationGateway.addObserver(this);
 
 		setTitle("Loan Client");
 		
@@ -168,6 +165,27 @@ public class LoanClientFrame extends JFrame {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+			}
+		});
+	}
+
+	/**
+	 * This method is called whenever the observed object is changed. An
+	 * application calls an <tt>Observable</tt> object's
+	 * <code>notifyObservers</code> method to have all the object's
+	 * observers notified of the change.
+	 *
+	 * @param o   the observable object.
+	 * @param arg an argument passed to the <code>notifyObservers</code>
+	 */
+	@Override
+	public void update(Observable o, Object arg) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				RequestReply<LoanRequest, LoanReply> requestReply = (RequestReply<LoanRequest, LoanReply>) arg;
+				getRequestReply(requestReply.getRequest());
+				requestReplyList.repaint();
 			}
 		});
 	}

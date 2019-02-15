@@ -13,8 +13,9 @@ import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Observable;
 
-public class LoanClientApplicationGateway {
+public class LoanClientApplicationGateway extends Observable {
     private MessageSenderGateway sender;
     private MessageReceiverGateway receiver;
 
@@ -36,6 +37,9 @@ public class LoanClientApplicationGateway {
 
                     RequestReply<LoanRequest, LoanReply> requestReply = requestReplyHashMap.get(correlationId);
                     requestReply.setReply(loanReply);
+
+                    setChanged();
+                    notifyObservers(requestReply);
                 } catch (JMSException e) {
                     e.printStackTrace();
                 }
@@ -51,6 +55,9 @@ public class LoanClientApplicationGateway {
         if(messageId != null) {
             requestReplyHashMap.put(messageId, requestReply);
         }
+
+        setChanged();
+        notifyObservers(requestReply);
 
         return messageId;
     }

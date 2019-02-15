@@ -15,8 +15,9 @@ import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Observable;
 
-public class BankApplicationGateway {
+public class BankApplicationGateway extends Observable {
     private MessageSenderGateway sender;
     private MessageReceiverGateway receiver;
 
@@ -39,6 +40,9 @@ public class BankApplicationGateway {
                     RequestReply<BankInterestRequest, BankInterestReply> requestReply = new RequestReply<>(bankInterestRequest, null);
 
                     bankInterestReply.put(requestReply, correlationId);
+
+                    setChanged();
+                    notifyObservers(requestReply);
                 } catch (JMSException e) {
                     e.printStackTrace();
                 }
@@ -49,6 +53,9 @@ public class BankApplicationGateway {
     public void sendBankInterestReply(RequestReply<BankInterestRequest, BankInterestReply> requestReply) {
         String messageId = bankInterestReply.get(requestReply);
         sender.produce(requestReply, messageId);
+
+        setChanged();
+        notifyObservers(requestReply);
     }
 
     public Map<RequestReply<BankInterestRequest, BankInterestReply>, String> getBankInterestReply() {

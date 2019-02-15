@@ -13,12 +13,9 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class LoanBrokerApplicationGateway {
+public class LoanBrokerApplicationGateway extends Observable {
     private MessageSenderGateway clientSender;
     private MessageReceiverGateway clientReceiver;
     private MessageSenderGateway bankSender;
@@ -33,8 +30,8 @@ public class LoanBrokerApplicationGateway {
     public LoanBrokerApplicationGateway() {
         this.clientSender = new MessageSenderGateway(QueueNames.bankInterestRequest);
         this.clientReceiver = new MessageReceiverGateway(QueueNames.loanRequest);
-        this.bankSender = new MessageSenderGateway(QueueNames.bankInterestReply);
-        this.bankReceiver = new MessageReceiverGateway(QueueNames.bankInterestRequest);
+        this.bankSender = new MessageSenderGateway(QueueNames.loanReply);
+        this.bankReceiver = new MessageReceiverGateway(QueueNames.bankInterestReply);
 
         /**
          * LoanRequest Broker
@@ -61,6 +58,13 @@ public class LoanBrokerApplicationGateway {
                     }
 
                     requestsWithMessageIds.put(messageId, correlationId);
+
+                    Map<String, Object> maps = new HashMap<>();
+                    maps.put("requestReply", requestReply);
+                    maps.put("loanRequest", loanRequestWithMessageIds.get(messageId));
+
+                    setChanged();
+                    notifyObservers(maps);
                 } catch (JMSException e) {
                     e.printStackTrace();
                 }
@@ -87,13 +91,35 @@ public class LoanBrokerApplicationGateway {
                     RequestReply<BankInterestRequest, LoanReply> requestReply = requestReplies.stream().filter(o -> o.getRequest().equals(bankInterestRequest)).findFirst().get();
                     requestReply.setReply(loanReply);
 
-                    bankSender.produce(loanReply, messageId);
+                    String sendMessagId = bankSender.produce(loanReply, messageId);
+
+                    Map<String, Object> maps = new HashMap<>();
+                    maps.put("requestReply", requestReply);
+                    maps.put("bankInterestReply", bankInterestReply);
+                    maps.put("loanRequest", loanRequestWithMessageIds.get(messageId));
+
+                    setChanged();
+                    notifyObservers(maps);
                 } catch (JMSException e) {
                     e.printStackTrace();
                 }
             }
         });
+    }
 
+    public Map<String, String> getRequestsWithMessageIds() {
+        return requestsWithMessageIds;
+    }
 
+    public Map<String, LoanRequest> getLoanRequestWithMessageIds() {
+        return loanRequestWithMessageIds;
+    }
+
+    public Map<String, BankInterestRequest> getBankInterestRequestWithMessageIds() {
+        return bankInterestRequestWithMessageIds;
+    }
+
+    public List<RequestReply<BankInterestRequest, LoanReply>> getRequestReplies() {
+        return requestReplies;
     }
 }

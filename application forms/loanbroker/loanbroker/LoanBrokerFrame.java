@@ -4,20 +4,22 @@ import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 
-import javax.swing.DefaultListModel;
-import javax.swing.JFrame;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import gateways.application.LoanBrokerApplicationGateway;
+import javafx.application.Platform;
+import messaging.requestreply.RequestReply;
 import model.bank.*;
+import model.loan.LoanReply;
 import model.loan.LoanRequest;
 
 
-public class LoanBrokerFrame extends JFrame {
+public class LoanBrokerFrame extends JFrame implements Observer {
 
 	/**
 	 * 
@@ -47,6 +49,8 @@ public class LoanBrokerFrame extends JFrame {
 	 */
 	public LoanBrokerFrame() {
 		this.loanBrokerApplicationGateway = new LoanBrokerApplicationGateway();
+
+		this.loanBrokerApplicationGateway.addObserver(this);
 
 		setTitle("Loan Broker");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -108,4 +112,36 @@ public class LoanBrokerFrame extends JFrame {
 	}
 
 
+	/**
+	 * This method is called whenever the observed object is changed. An
+	 * application calls an <tt>Observable</tt> object's
+	 * <code>notifyObservers</code> method to have all the object's
+	 * observers notified of the change.
+	 *
+	 * @param o   the observable object.
+	 * @param arg an argument passed to the <code>notifyObservers</code>
+	 */
+	@Override
+	public void update(Observable o, Object arg) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				Map<String, Object> maps = (Map<String, Object>) arg;
+				RequestReply<BankInterestRequest, LoanReply> requestReply = (RequestReply<BankInterestRequest, LoanReply>) maps.get("requestReply");
+				BankInterestReply bankInterestReply = (BankInterestReply) maps.get("bankInterestReply");
+				LoanRequest loanRequest = (LoanRequest) maps.get("loanRequest");
+
+				add(loanRequest);
+				if(requestReply.getRequest() != null) {
+					add(loanRequest, requestReply.getRequest());
+				}
+
+				if(bankInterestReply != null) {
+					add(loanRequest, bankInterestReply);
+				}
+
+				list.repaint();
+			}
+		});
+	}
 }

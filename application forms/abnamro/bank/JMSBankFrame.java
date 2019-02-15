@@ -5,22 +5,18 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Observable;
+import java.util.Observer;
 
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import gateways.application.BankApplicationGateway;
+import javafx.application.Platform;
 import model.bank.*;
 import messaging.requestreply.RequestReply;
 
-public class JMSBankFrame extends JFrame {
+public class JMSBankFrame extends JFrame implements Observer {
 
 	/**
 	 * 
@@ -29,6 +25,7 @@ public class JMSBankFrame extends JFrame {
 	private JPanel contentPane;
 	private JTextField tfReply;
 	private DefaultListModel<RequestReply<BankInterestRequest, BankInterestReply>> listModel = new DefaultListModel<RequestReply<BankInterestRequest, BankInterestReply>>();
+	private JList<RequestReply<BankInterestRequest, BankInterestReply>> list;
 
 	private BankApplicationGateway bankApplicationGateway;
 
@@ -53,6 +50,7 @@ public class JMSBankFrame extends JFrame {
 	 */
 	public JMSBankFrame() {
 		this.bankApplicationGateway = new BankApplicationGateway();
+		this.bankApplicationGateway.addObserver(this);
 
 		setTitle("JMS Bank - ABN AMRO");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -76,7 +74,7 @@ public class JMSBankFrame extends JFrame {
 		gbc_scrollPane.gridy = 0;
 		contentPane.add(scrollPane, gbc_scrollPane);
 		
-		JList<RequestReply<BankInterestRequest, BankInterestReply>> list = new JList<RequestReply<BankInterestRequest, BankInterestReply>>(listModel);
+		list = new JList<RequestReply<BankInterestRequest, BankInterestReply>>(listModel);
 		scrollPane.setViewportView(list);
 		
 		JLabel lblNewLabel = new JLabel("type reply");
@@ -118,5 +116,24 @@ public class JMSBankFrame extends JFrame {
 		gbc_btnSendReply.gridx = 4;
 		gbc_btnSendReply.gridy = 1;
 		contentPane.add(btnSendReply, gbc_btnSendReply);
+	}
+
+	/**
+	 * This method is called whenever the observed object is changed. An
+	 * application calls an <tt>Observable</tt> object's
+	 * <code>notifyObservers</code> method to have all the object's
+	 * observers notified of the change.
+	 *
+	 * @param o   the observable object.
+	 * @param arg an argument passed to the <code>notifyObservers</code>
+	 */
+	@Override
+	public void update(Observable o, Object arg) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				list.repaint();
+			}
+		});
 	}
 }

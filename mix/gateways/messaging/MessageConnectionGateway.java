@@ -1,6 +1,7 @@
 package gateways.messaging;
 
 import messaging.QueueNames;
+import org.apache.activemq.ActiveMQConnectionFactory;
 
 import javax.jms.*;
 import javax.naming.Context;
@@ -34,7 +35,8 @@ public class MessageConnectionGateway {
 
         try {
             this.jndiContext = new InitialContext(props);
-            ConnectionFactory factory = (ConnectionFactory) jndiContext.lookup("ConnectionFactory");
+            ActiveMQConnectionFactory factory = (ActiveMQConnectionFactory) jndiContext.lookup("ConnectionFactory");
+            factory.setTrustAllPackages(true);
             connection = factory.createConnection();
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             this.destination = (Destination) jndiContext.lookup(channel);
