@@ -19,8 +19,10 @@ import java.util.List;
 import java.util.Map;
 
 public class LoanBrokerApplicationGateway {
-    private MessageSenderGateway sender;
-    private MessageReceiverGateway receiver;
+    private MessageSenderGateway clientSender;
+    private MessageReceiverGateway clientReceiver;
+    private MessageSenderGateway bankSender;
+    private MessageReceiverGateway bankReceiver;
 
     // Mapping the messaging id's of BankInterestRequest with LoanRequest
     private Map<String, String> requestsWithMessageIds = new HashMap<>();
@@ -28,14 +30,16 @@ public class LoanBrokerApplicationGateway {
     private Map<String, BankInterestRequest> bankInterestRequestWithMessageIds = new HashMap<>();
     private List<RequestReply<BankInterestRequest, LoanReply>> requestReplies = new ArrayList<>();
 
-    public LoanBrokerApplicationGateway(String senderChannel, String receiverChannel) {
-        this.sender = new MessageSenderGateway(senderChannel);
-        this.receiver = new MessageReceiverGateway(receiverChannel);
+    public LoanBrokerApplicationGateway() {
+        this.clientSender = new MessageSenderGateway(QueueNames.bankInterestRequest);
+        this.clientReceiver = new MessageReceiverGateway(QueueNames.loanRequest);
+        this.bankSender = new MessageSenderGateway(QueueNames.bankInterestReply);
+        this.bankReceiver = new MessageReceiverGateway(QueueNames.bankInterestRequest);
 
         /**
          * LoanRequest Broker
          */
-        this.receiver.consume(new MessageListener() {
+        this.clientReceiver.consume(new MessageListener() {
             @Override
             public void onMessage(Message message) {
                 LoanRequest loanRequest = null;
@@ -50,7 +54,7 @@ public class LoanBrokerApplicationGateway {
                     RequestReply<BankInterestRequest, LoanReply> requestReply = new RequestReply<>(bankInterestRequest, null);
                     requestReplies.add(requestReply);
 
-                    String messageId = sender.produce(bankInterestRequest, null);
+                    String messageId = clientSender.produce(bankInterestRequest, null);
 
                     if(messageId != null) {
                         bankInterestRequestWithMessageIds.put(messageId, bankInterestRequest);
@@ -66,7 +70,7 @@ public class LoanBrokerApplicationGateway {
         /**
          * BankInterestReply Broker
          */
-        this.receiver.consume(new MessageListener() {
+        this.bankReceiver.consume(new MessageListener() {
             @Override
             public void onMessage(Message message) {
                 BankInterestReply bankInterestReply = null;
@@ -83,7 +87,7 @@ public class LoanBrokerApplicationGateway {
                     RequestReply<BankInterestRequest, LoanReply> requestReply = requestReplies.stream().filter(o -> o.getRequest().equals(bankInterestRequest)).findFirst().get();
                     requestReply.setReply(loanReply);
 
-                    sender.produce(loanReply, messageId);
+                    bankSender.produce(loanReply, messageId);
                 } catch (JMSException e) {
                     e.printStackTrace();
                 }

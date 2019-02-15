@@ -2,6 +2,7 @@ package gateways.application;
 
 import gateways.messaging.MessageReceiverGateway;
 import gateways.messaging.MessageSenderGateway;
+import messaging.QueueNames;
 import messaging.requestreply.RequestReply;
 import model.bank.BankInterestReply;
 import model.bank.BankInterestRequest;
@@ -21,9 +22,9 @@ public class BankApplicationGateway {
 
     private Map<RequestReply<BankInterestRequest, BankInterestReply>, String> bankInterestReply = new HashMap<>();
 
-    public BankApplicationGateway(String senderChannel, String receiverChannel) {
-        this.sender = new MessageSenderGateway(senderChannel);
-        this.receiver = new MessageReceiverGateway(receiverChannel);
+    public BankApplicationGateway() {
+        this.sender = new MessageSenderGateway(QueueNames.bankInterestReply);
+        this.receiver = new MessageReceiverGateway(QueueNames.bankInterestRequest);
 
         this.receiver.consume(new MessageListener() {
             @Override
@@ -48,5 +49,9 @@ public class BankApplicationGateway {
     public void sendBankInterestReply(RequestReply<BankInterestRequest, BankInterestReply> requestReply) {
         String messageId = bankInterestReply.get(requestReply);
         sender.produce(requestReply, messageId);
+    }
+
+    public Map<RequestReply<BankInterestRequest, BankInterestReply>, String> getBankInterestReply() {
+        return bankInterestReply;
     }
 }

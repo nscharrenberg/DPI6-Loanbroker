@@ -5,13 +5,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-import javax.jms.ObjectMessage;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -22,10 +15,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-import messaging.MessageQueue;
-import messaging.QueueNames;
+import gateways.application.LoanClientApplicationGateway;
 import messaging.requestreply.RequestReply;
-import model.bank.BankInterestReply;
 import model.loan.*;
 
 public class LoanClientFrame extends JFrame {
@@ -44,13 +35,14 @@ public class LoanClientFrame extends JFrame {
 	private JLabel lblNewLabel_1;
 	private JTextField tfTime;
 
-	private Map<String, RequestReply<LoanRequest, LoanReply>> requestReplyHashMap = new HashMap<>();
-	private MessageQueue messageQueue = new MessageQueue();
+	private LoanClientApplicationGateway loanClientApplicationGateway;
 
 	/**
 	 * Create the frame.
 	 */
 	public LoanClientFrame() {
+		this.loanClientApplicationGateway = new LoanClientApplicationGateway();
+
 		setTitle("Loan Client");
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -124,11 +116,9 @@ public class LoanClientFrame extends JFrame {
 				int time = Integer.parseInt(tfTime.getText());				
 				
 				LoanRequest request = new LoanRequest(ssn,amount,time);
-				RequestReply<LoanRequest, LoanReply> requestReply = new RequestReply<>(request, null);
+				String messageId = loanClientApplicationGateway.sendLoanRequest(request);
+				RequestReply<LoanRequest, LoanReply> requestReply = loanClientApplicationGateway.getRequestReplyHashMap().get(messageId);
 				listModel.addElement(requestReply);
-
-				String messageId = messageQueue.produce(request, QueueNames.loanRequest, null);
-				requestReplyHashMap.put(messageId, requestReply);
 			}
 		});
 		GridBagConstraints gbc_btnQueue = new GridBagConstraints();
@@ -148,31 +138,6 @@ public class LoanClientFrame extends JFrame {
 		
 		requestReplyList = new JList<RequestReply<LoanRequest,LoanReply>>(listModel);
 		scrollPane.setViewportView(requestReplyList);
-
-		consumeLoanReply();
-	}
-
-	private void consumeLoanReply() {
-		messageQueue.consume(QueueNames.loanReply, new MessageListener() {
-			@Override
-			public void onMessage(Message message) {
-				LoanReply loanReply = null;
-				String correlationId = null;
-
-				try {
-					System.out.println("LoanReply Received");
-					loanReply = (LoanReply) ((ObjectMessage) message).getObject();
-					correlationId = message.getJMSCorrelationID();
-
-					RequestReply<LoanRequest, LoanReply> requestReply = requestReplyHashMap.get(correlationId);
-					requestReply.setReply(loanReply);
-
-					requestReplyList.repaint();
-				} catch (JMSException e) {
-					e.printStackTrace();
-				}
-			}
-		});
 	}
 	
 	/**

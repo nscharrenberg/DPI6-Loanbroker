@@ -2,6 +2,7 @@ package gateways.application;
 
 import gateways.messaging.MessageReceiverGateway;
 import gateways.messaging.MessageSenderGateway;
+import messaging.QueueNames;
 import messaging.requestreply.RequestReply;
 import model.loan.LoanReply;
 import model.loan.LoanRequest;
@@ -19,9 +20,9 @@ public class LoanClientApplicationGateway {
 
     private Map<String, RequestReply<LoanRequest, LoanReply>> requestReplyHashMap = new HashMap<>();
 
-    public LoanClientApplicationGateway(String senderChannel, String receiverChannel) {
-        this.sender = new MessageSenderGateway(senderChannel);
-        this.receiver = new MessageReceiverGateway(receiverChannel);
+    public LoanClientApplicationGateway() {
+        this.sender = new MessageSenderGateway(QueueNames.loanRequest);
+        this.receiver = new MessageReceiverGateway(QueueNames.loanReply);
 
         this.receiver.consume(new MessageListener() {
             @Override
@@ -42,7 +43,7 @@ public class LoanClientApplicationGateway {
         });
     }
 
-    public void sendLoanRequest(LoanRequest loanRequest) {
+    public String sendLoanRequest(LoanRequest loanRequest) {
         RequestReply<LoanRequest, LoanReply> requestReply = new RequestReply<>(loanRequest, null);
 
         String messageId = this.sender.produce(loanRequest, null);
@@ -50,6 +51,8 @@ public class LoanClientApplicationGateway {
         if(messageId != null) {
             requestReplyHashMap.put(messageId, requestReply);
         }
+
+        return messageId;
     }
 
     public Map<String, RequestReply<LoanRequest, LoanReply>> getRequestReplyHashMap() {

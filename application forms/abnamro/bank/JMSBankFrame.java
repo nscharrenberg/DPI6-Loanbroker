@@ -5,12 +5,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import javax.jms.*;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -21,8 +16,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-import messaging.MessageQueue;
-import messaging.QueueNames;
+import gateways.application.BankApplicationGateway;
 import model.bank.*;
 import messaging.requestreply.RequestReply;
 
@@ -36,8 +30,7 @@ public class JMSBankFrame extends JFrame {
 	private JTextField tfReply;
 	private DefaultListModel<RequestReply<BankInterestRequest, BankInterestReply>> listModel = new DefaultListModel<RequestReply<BankInterestRequest, BankInterestReply>>();
 
-	private MessageQueue messageQueue = new MessageQueue();
-	private Map<RequestReply<BankInterestRequest, BankInterestReply>, String> bankInterestReply = new HashMap<>();
+	private BankApplicationGateway bankApplicationGateway;
 
 	/**
 	 * Launch the application.
@@ -59,6 +52,8 @@ public class JMSBankFrame extends JFrame {
 	 * Create the frame.
 	 */
 	public JMSBankFrame() {
+		this.bankApplicationGateway = new BankApplicationGateway();
+
 		setTitle("JMS Bank - ABN AMRO");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
@@ -111,10 +106,10 @@ public class JMSBankFrame extends JFrame {
 				if (rr!= null && reply != null){
 					rr.setReply(reply);
 	                list.repaint();
-					String correlationId = bankInterestReply.get(rr);
+					String correlationId = bankApplicationGateway.getBankInterestReply().get(rr);
 					rr.setReply(reply);
 
-					messageQueue.produce(reply, QueueNames.bankInterestReply, correlationId);
+					bankApplicationGateway.sendBankInterestReply(rr);
 				}
 			}
 		});
@@ -123,31 +118,5 @@ public class JMSBankFrame extends JFrame {
 		gbc_btnSendReply.gridx = 4;
 		gbc_btnSendReply.gridy = 1;
 		contentPane.add(btnSendReply, gbc_btnSendReply);
-
-		consumeInterestRequest();
 	}
-
-	private void consumeInterestRequest() {
-		messageQueue.consume(QueueNames.bankInterestRequest, new MessageListener() {
-			@Override
-			public void onMessage(Message message) {
-				BankInterestRequest bankInterestRequest = null;
-				String correlationId = null;
-
-				try {
-					bankInterestRequest = (BankInterestRequest)((ObjectMessage) message).getObject();
-					correlationId = message.getJMSMessageID();
-
-					RequestReply<BankInterestRequest, BankInterestReply> requestReply = new RequestReply<>(bankInterestRequest, null);
-					listModel.addElement(requestReply);
-
-					bankInterestReply.put(requestReply, correlationId);
-				} catch (JMSException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-
-	}
-
 }
