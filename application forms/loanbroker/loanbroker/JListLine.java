@@ -1,8 +1,7 @@
-package applications.loanbroker;
+package loanbroker.loanbroker;
 
-import mix.model.bank.BankInterestReply;
-import mix.model.bank.BankInterestRequest;
-import mix.model.loan.LoanRequest;
+import model.loan.*;
+import model.bank.*;
 
 /**
  * This class represents one line in the JList in Loan Broker.

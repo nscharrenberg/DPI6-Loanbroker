@@ -1,4 +1,4 @@
-package mix.messaging.requestreply;
+package messaging.requestreply;
 
 import java.io.Serializable;
 

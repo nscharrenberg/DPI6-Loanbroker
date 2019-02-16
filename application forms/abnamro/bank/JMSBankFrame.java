@@ -1,30 +1,24 @@
-package applications.bank;
-import mix.messaging.MessageQueue;
-import mix.messaging.requestreply.RequestReply;
-import mix.model.bank.BankInterestReply;
-import mix.model.bank.BankInterestRequest;
-import mix.model.loan.LoanRequest;
-
+package abnamro.bank;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.Serializable;
+import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Set;
 
-import javax.jms.*;
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
-public class JMSBankFrame extends JFrame {
+import gateways.application.BankApplicationGateway;
+import javafx.application.Platform;
+import model.bank.*;
+import messaging.requestreply.RequestReply;
+
+public class JMSBankFrame extends JFrame implements Observer {
 
 	/**
 	 * 
@@ -33,7 +27,10 @@ public class JMSBankFrame extends JFrame {
 	private JPanel contentPane;
 	private JTextField tfReply;
 	private DefaultListModel<RequestReply<BankInterestRequest, BankInterestReply>> listModel = new DefaultListModel<RequestReply<BankInterestRequest, BankInterestReply>>();
-	
+	private JList<RequestReply<BankInterestRequest, BankInterestReply>> list;
+
+	private BankApplicationGateway bankApplicationGateway;
+
 	/**
 	 * Launch the application.
 	 */
@@ -54,6 +51,9 @@ public class JMSBankFrame extends JFrame {
 	 * Create the frame.
 	 */
 	public JMSBankFrame() {
+		this.bankApplicationGateway = new BankApplicationGateway();
+		this.bankApplicationGateway.addObserver(this);
+
 		setTitle("JMS Bank - ABN AMRO");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
@@ -76,7 +76,7 @@ public class JMSBankFrame extends JFrame {
 		gbc_scrollPane.gridy = 0;
 		contentPane.add(scrollPane, gbc_scrollPane);
 		
-		JList<RequestReply<BankInterestRequest, BankInterestReply>> list = new JList<RequestReply<BankInterestRequest, BankInterestReply>>(listModel);
+		list = new JList<RequestReply<BankInterestRequest, BankInterestReply>>(listModel);
 		scrollPane.setViewportView(list);
 		
 		JLabel lblNewLabel = new JLabel("type reply");
@@ -105,15 +105,8 @@ public class JMSBankFrame extends JFrame {
 				BankInterestReply reply = new BankInterestReply(interest,"ABN AMRO");
 				if (rr!= null && reply != null){
 					rr.setReply(reply);
-	                list.repaint();
-					// todo: sent JMS message with the reply to Loan Broker
-					LoanRequest request = rr.getRequest().getLoanRequest();
-					System.out.println("BROKER: Get Request: " + request);
-					reply.setLoanRequest(request);
-					System.out.println("BROKER: Get Reply: " + reply);
 
-					new MessageQueue().produce(reply);
-					System.out.println("BROKER: Reply has been Send!");
+					bankApplicationGateway.sendBankInterestReply(rr);
 				}
 			}
 		});
@@ -122,43 +115,40 @@ public class JMSBankFrame extends JFrame {
 		gbc_btnSendReply.gridx = 4;
 		gbc_btnSendReply.gridy = 1;
 		contentPane.add(btnSendReply, gbc_btnSendReply);
+	}
 
-		/**
-		 * Process
-		 * ======================================================================================
-		 * 1. Client should request a loan, it sends the LoanRequest object to the Loan Broker.
-		 * 2. The Loan Broker consumes the LoanRequest object from the client.
-		 * 3. The Loan Broker converts the LoanRequest into a BankInterestRequest.
-		 * 4. The Loan Broker sends the BankInterestRequest to the Bank.
-		 * 5. The Bank consumes the BankInterestRequest from the Loan Broker.					 <===
-		 * 6. An person sets an interest rate and converts it into a BankInterestReply.			 <===
-		 * 7. The Bank sends the BankInterestReply back to the Loan Broker.						 <===
-		 * 8. The Loan Broker consumes the BankInterestReply from the Bank.
-		 * 9. The Loan Broker converts the BankInterestReply into a LoanReply.
-		 * 10. The Loan Broker sends the LoanReply back to the Client.
-		 * 11. The Client consumes the LoanReply.
-		 * ======================================================================================
-		 */
-		new MessageQueue().consume(MessageQueue.bankInterestRequest, new MessageListener() {
+	/**
+	 * This method is called whenever the observed object is changed. An
+	 * application calls an <tt>Observable</tt> object's
+	 * <code>notifyObservers</code> method to have all the object's
+	 * observers notified of the change.
+	 *
+	 * @param o   the observable object.
+	 * @param arg an argument passed to the <code>notifyObservers</code>
+	 */
+	@Override
+	public void update(Observable o, Object arg) {
+		SwingUtilities.invokeLater(new Runnable() {
 			@Override
-			public void onMessage(Message msg) {
-				if(msg instanceof ObjectMessage) {
-					Serializable obj = null;
+			public void run() {
+				if(arg != null) {
+					String messageId = arg.toString();
+					RequestReply<BankInterestRequest, BankInterestReply> requestReply = null;
+					Map<RequestReply<BankInterestRequest, BankInterestReply>, String> hm = bankApplicationGateway.getBankInterestReply();
 
-					try {
-						obj = (Serializable)((ObjectMessage) msg).getObject();
-
-						if(obj instanceof BankInterestRequest) {
-							BankInterestRequest request = (BankInterestRequest) obj;
-
-							System.out.println("BANK: Request: " + request);
-
-							listModel.addElement(new RequestReply<BankInterestRequest, BankInterestReply>(request, null));
+					for(RequestReply<BankInterestRequest, BankInterestReply> rr : hm.keySet()) {
+						if(hm.get(rr).equals(messageId)) {
+							requestReply = rr;
+							break;
 						}
-					} catch (JMSException e) {
-						e.printStackTrace();
+					}
+
+					if(requestReply != null && !listModel.contains(requestReply)) {
+						listModel.addElement(requestReply);
 					}
 				}
+
+				list.repaint();
 			}
 		});
 	}

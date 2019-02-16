@@ -1,29 +1,21 @@
-package applications.loanclient;
-import mix.messaging.MessageQueue;
-import mix.messaging.requestreply.RequestReply;
-import mix.model.loan.LoanReply;
-import mix.model.loan.LoanRequest;
-
+package loanclient.loanclient;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.Serializable;
-
-import javax.jms.*;
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
+import java.util.Observable;
+import java.util.Observer;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
-public class LoanClientFrame extends JFrame {
+import gateways.application.LoanClientApplicationGateway;
+import javafx.application.Platform;
+import messaging.requestreply.RequestReply;
+import model.loan.*;
+
+public class LoanClientFrame extends JFrame implements Observer {
 
 	/**
 	 * 
@@ -39,51 +31,14 @@ public class LoanClientFrame extends JFrame {
 	private JLabel lblNewLabel_1;
 	private JTextField tfTime;
 
+	private LoanClientApplicationGateway loanClientApplicationGateway;
+
 	/**
 	 * Create the frame.
 	 */
 	public LoanClientFrame() {
-		/**
-		 * Process
-		 * ======================================================================================
-		 * 1. Client should request a loan, it sends the LoanRequest object to the Loan Broker.  <===
-		 * 2. The Loan Broker consumes the LoanRequest object from the client.
-		 * 3. The Loan Broker converts the LoanRequest into a BankInterestRequest.
-		 * 4. The Loan Broker sends the BankInterestRequest to the Bank.
-		 * 5. The Bank consumes the BankInterestRequest from the Loan Broker.
-		 * 6. An person sets an interest rate and converts it into a BankInterestReply.
-		 * 7. The Bank sends the BankInterestReply back to the Loan Broker.
-		 * 8. The Loan Broker consumes the BankInterestReply from the Bank.
-		 * 9. The Loan Broker converts the BankInterestReply into a LoanReply.
-		 * 10. The Loan Broker sends the LoanReply back to the Client.
-		 * 11. The Client consumes the LoanReply.												 <===
-		 * ======================================================================================
-		 */
-
-		new MessageQueue().consume(MessageQueue.loanReply, new MessageListener() {
-			@Override
-			public void onMessage(Message msg) {
-				if(msg instanceof ObjectMessage) {
-					Serializable obj = null;
-
-					try {
-						obj = (Serializable)((ObjectMessage) msg).getObject();
-					} catch (JMSException e) {
-						e.printStackTrace();
-					}
-
-					if(obj instanceof LoanReply) {
-						LoanReply reply = (LoanReply) obj;
-						LoanRequest request = (LoanRequest)reply.getLoanRequest();
-
-						RequestReply<LoanRequest, LoanReply> requestReply = getRequestReply(request);
-						requestReply.setReply(reply);
-						System.out.println("End Reply: " + requestReply.getReply());
-						requestReplyList.repaint();
-					}
-				}
-			}
-		});
+		this.loanClientApplicationGateway = new LoanClientApplicationGateway();
+		this.loanClientApplicationGateway.addObserver(this);
 
 		setTitle("Loan Client");
 		
@@ -158,10 +113,9 @@ public class LoanClientFrame extends JFrame {
 				int time = Integer.parseInt(tfTime.getText());				
 				
 				LoanRequest request = new LoanRequest(ssn,amount,time);
-				listModel.addElement( new RequestReply<LoanRequest,LoanReply>(request, null));
-
-				// todo:  send the JMS with request to Loan Broker
-				new MessageQueue().produce(request);
+				String messageId = loanClientApplicationGateway.sendLoanRequest(request);
+				RequestReply<LoanRequest, LoanReply> requestReply = loanClientApplicationGateway.getRequestReplyHashMap().get(messageId);
+				listModel.addElement(requestReply);
 			}
 		});
 		GridBagConstraints gbc_btnQueue = new GridBagConstraints();
@@ -189,14 +143,10 @@ public class LoanClientFrame extends JFrame {
 	 * @param request
 	 * @return
 	 */
-   private RequestReply<LoanRequest,LoanReply> getRequestReply(LoanRequest request){
+   private RequestReply<LoanRequest,LoanReply> getRequestReply(LoanRequest request){    
+     
      for (int i = 0; i < listModel.getSize(); i++){
     	 RequestReply<LoanRequest,LoanReply> rr =listModel.get(i);
-
-		 if(rr.getRequest().getSsn() == request.getSsn() && rr.getRequest().getTime() == request.getTime() && rr.getRequest().getAmount() == request.getAmount()) {
-			 return rr;
-		 }
-
     	 if (rr.getRequest() == request){
     		 return rr;
     	 }
@@ -215,6 +165,35 @@ public class LoanClientFrame extends JFrame {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+			}
+		});
+	}
+
+	/**
+	 * This method is called whenever the observed object is changed. An
+	 * application calls an <tt>Observable</tt> object's
+	 * <code>notifyObservers</code> method to have all the object's
+	 * observers notified of the change.
+	 *
+	 * @param o   the observable object.
+	 * @param arg an argument passed to the <code>notifyObservers</code>
+	 */
+	@Override
+	public void update(Observable o, Object arg) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				if(arg != null) {
+					try {
+						RequestReply<LoanRequest, LoanReply> requestReply = (RequestReply<LoanRequest, LoanReply>) arg;
+						getRequestReply(requestReply.getRequest());
+					} catch(Exception e) {
+						e.printStackTrace();
+					}
+
+				}
+
+				requestReplyList.repaint();
 			}
 		});
 	}

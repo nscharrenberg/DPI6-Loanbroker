@@ -1,6 +1,4 @@
-package mix.model.bank;
-
-import mix.model.loan.LoanRequest;
+package model.bank;
 
 import java.io.Serializable;
 
@@ -13,18 +11,15 @@ public class BankInterestReply implements Serializable {
 
     private double interest; // the loan interest
     private String bankId; // the nunique quote Id
-    private LoanRequest loanRequest;
     
     public BankInterestReply() {
         this.interest = 0;
         this.bankId = "";
-        this.loanRequest = null;
     }
     
     public BankInterestReply(double interest, String quoteId) {
         this.interest = interest;
         this.bankId = quoteId;
-        this.loanRequest = null;
     }
 
     public double getInterest() {
@@ -45,13 +40,5 @@ public class BankInterestReply implements Serializable {
 
     public String toString() {
         return "quote=" + this.bankId + " interest=" + this.interest;
-    }
-
-    public LoanRequest getLoanRequest() {
-        return loanRequest;
-    }
-
-    public void setLoanRequest(LoanRequest loanRequest) {
-        this.loanRequest = loanRequest;
     }
 }

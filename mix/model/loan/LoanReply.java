@@ -1,4 +1,4 @@
-package mix.model.loan;
+package model.loan;
 
 import java.io.Serializable;
 
@@ -11,19 +11,16 @@ public class LoanReply implements Serializable {
 
         private double interest; // the interest that the bank offers
         private String bankID; // the unique quote identification
-        private LoanRequest loanRequest;
 
     public LoanReply() {
         super();
         this.interest = 0;
         this.bankID = "";
-        this.loanRequest = null;
     }
     public LoanReply(double interest, String quoteID) {
         super();
         this.interest = interest;
         this.bankID = quoteID;
-        this.loanRequest = null;
     }
 
     public double getInterest() {
@@ -45,13 +42,5 @@ public class LoanReply implements Serializable {
     @Override
     public String toString(){
         return " interest="+String.valueOf(interest) + " quoteID="+String.valueOf(bankID);
-    }
-
-    public LoanRequest getLoanRequest() {
-        return loanRequest;
-    }
-
-    public void setLoanRequest(LoanRequest loanRequest) {
-        this.loanRequest = loanRequest;
     }
 }

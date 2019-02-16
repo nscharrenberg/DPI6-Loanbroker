@@ -1,4 +1,4 @@
-package mix.model.loan;
+package model.loan;
 
 import java.io.Serializable;
 
