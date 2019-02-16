@@ -14,3 +14,11 @@ The bank receives the `BankInterestRequest` and sends back a reply to the loan b
 
 The loan broker receives the `BankInterestReply` and converts it to a `LoanReply` stating the loan and the interest for the client. The client receives the `LoanReply` and can see what the interest will be for the loan.
 
+## Dependency Requirements
+This project makes use of the following dependencies:
+ - Java EE
+ - Java Message Service
+ - Apache ActiveMQ
+ 
+Be sure to have these dependencies available.
+
