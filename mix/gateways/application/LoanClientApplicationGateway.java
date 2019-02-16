@@ -35,11 +35,13 @@ public class LoanClientApplicationGateway extends Observable {
                     loanReply = (LoanReply)((ObjectMessage) message).getObject();
                     correlationId = message.getJMSCorrelationID();
 
+                    System.out.println("LoanClientBroker Received ID: " + correlationId);
+
                     RequestReply<LoanRequest, LoanReply> requestReply = requestReplyHashMap.get(correlationId);
                     requestReply.setReply(loanReply);
 
                     setChanged();
-                    notifyObservers(requestReply);
+                    notifyObservers(correlationId);
                 } catch (JMSException e) {
                     e.printStackTrace();
                 }
@@ -51,13 +53,15 @@ public class LoanClientApplicationGateway extends Observable {
         RequestReply<LoanRequest, LoanReply> requestReply = new RequestReply<>(loanRequest, null);
 
         String messageId = this.sender.produce(loanRequest, null);
+        System.out.println("LoanClientBroker Sended ID: " + messageId);
+        int test = 1;
 
         if(messageId != null) {
             requestReplyHashMap.put(messageId, requestReply);
         }
 
         setChanged();
-        notifyObservers(requestReply);
+        notifyObservers(messageId);
 
         return messageId;
     }

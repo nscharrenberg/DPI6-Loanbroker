@@ -5,8 +5,10 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Set;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -103,9 +105,6 @@ public class JMSBankFrame extends JFrame implements Observer {
 				BankInterestReply reply = new BankInterestReply(interest,"ABN AMRO");
 				if (rr!= null && reply != null){
 					rr.setReply(reply);
-	                list.repaint();
-					String correlationId = bankApplicationGateway.getBankInterestReply().get(rr);
-					rr.setReply(reply);
 
 					bankApplicationGateway.sendBankInterestReply(rr);
 				}
@@ -132,6 +131,23 @@ public class JMSBankFrame extends JFrame implements Observer {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
+				if(arg != null) {
+					String messageId = arg.toString();
+					RequestReply<BankInterestRequest, BankInterestReply> requestReply = null;
+					Map<RequestReply<BankInterestRequest, BankInterestReply>, String> hm = bankApplicationGateway.getBankInterestReply();
+
+					for(RequestReply<BankInterestRequest, BankInterestReply> rr : hm.keySet()) {
+						if(hm.get(rr).equals(messageId)) {
+							requestReply = rr;
+							break;
+						}
+					}
+
+					if(requestReply != null && !listModel.contains(requestReply)) {
+						listModel.addElement(requestReply);
+					}
+				}
+
 				list.repaint();
 			}
 		});

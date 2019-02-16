@@ -126,18 +126,45 @@ public class LoanBrokerFrame extends JFrame implements Observer {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				Map<String, Object> maps = (Map<String, Object>) arg;
-				RequestReply<BankInterestRequest, LoanReply> requestReply = (RequestReply<BankInterestRequest, LoanReply>) maps.get("requestReply");
-				BankInterestReply bankInterestReply = (BankInterestReply) maps.get("bankInterestReply");
-				LoanRequest loanRequest = (LoanRequest) maps.get("loanRequest");
+				if(arg != null) {
+					String messageId = arg.toString();
+					LoanRequest loanRequest = null;
+					BankInterestReply bankInterestReply = null;
+					BankInterestRequest bankInterestRequest = null;
+					String tmpMessageId = null;
 
-				add(loanRequest);
-				if(requestReply.getRequest() != null) {
-					add(loanRequest, requestReply.getRequest());
-				}
+					try {
+						tmpMessageId = loanBrokerApplicationGateway.getRequestsWithMessageIds().get(messageId);
 
-				if(bankInterestReply != null) {
-					add(loanRequest, bankInterestReply);
+						if(tmpMessageId != null) {
+							loanRequest = loanBrokerApplicationGateway.getLoanRequestWithMessageIds().get(loanBrokerApplicationGateway.getRequestsWithMessageIds().get(messageId));
+						} else {
+							loanRequest = loanBrokerApplicationGateway.getLoanRequestWithMessageIds().get(messageId);
+						}
+
+
+						bankInterestReply = loanBrokerApplicationGateway.getBankInterestReplyWithMessageIds().get(messageId);
+						bankInterestRequest = loanBrokerApplicationGateway.getBankInterestRequestWithMessageIds().get(messageId);
+
+						System.out.println("loanRequest: " + loanRequest);
+						System.out.println("bankInterestReply: " + bankInterestReply);
+						System.out.println("bankInterestRequest: " + bankInterestRequest);
+
+						if(loanRequest == null) {
+							throw new Exception("LoanRequest can not be null on update!");
+						}
+
+
+
+						if(bankInterestReply != null) {
+							add(loanRequest, bankInterestReply);
+						} else if(bankInterestRequest != null) {
+							add(loanRequest);
+							add(loanRequest, bankInterestRequest);
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 
 				list.repaint();

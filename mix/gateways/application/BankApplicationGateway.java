@@ -6,8 +6,6 @@ import messaging.QueueNames;
 import messaging.requestreply.RequestReply;
 import model.bank.BankInterestReply;
 import model.bank.BankInterestRequest;
-import model.loan.LoanReply;
-import model.loan.LoanRequest;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -36,13 +34,13 @@ public class BankApplicationGateway extends Observable {
                 try {
                     bankInterestRequest = (BankInterestRequest)((ObjectMessage) message).getObject();
                     correlationId = message.getJMSMessageID();
+                    System.out.println("BankApplication Received ID: " + correlationId);
 
                     RequestReply<BankInterestRequest, BankInterestReply> requestReply = new RequestReply<>(bankInterestRequest, null);
-
                     bankInterestReply.put(requestReply, correlationId);
 
                     setChanged();
-                    notifyObservers(requestReply);
+                    notifyObservers(correlationId);
                 } catch (JMSException e) {
                     e.printStackTrace();
                 }
@@ -52,10 +50,11 @@ public class BankApplicationGateway extends Observable {
 
     public void sendBankInterestReply(RequestReply<BankInterestRequest, BankInterestReply> requestReply) {
         String messageId = bankInterestReply.get(requestReply);
-        sender.produce(requestReply, messageId);
+        sender.produce(requestReply.getReply(), messageId);
+        System.out.println("BankApplication Sended ID: " + messageId);
 
         setChanged();
-        notifyObservers(requestReply);
+        notifyObservers(messageId);
     }
 
     public Map<RequestReply<BankInterestRequest, BankInterestReply>, String> getBankInterestReply() {

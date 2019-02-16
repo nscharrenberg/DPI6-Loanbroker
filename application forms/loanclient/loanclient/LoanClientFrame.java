@@ -183,8 +183,16 @@ public class LoanClientFrame extends JFrame implements Observer {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				RequestReply<LoanRequest, LoanReply> requestReply = (RequestReply<LoanRequest, LoanReply>) arg;
-				getRequestReply(requestReply.getRequest());
+				if(arg != null) {
+					try {
+						RequestReply<LoanRequest, LoanReply> requestReply = (RequestReply<LoanRequest, LoanReply>) arg;
+						getRequestReply(requestReply.getRequest());
+					} catch(Exception e) {
+						e.printStackTrace();
+					}
+
+				}
+
 				requestReplyList.repaint();
 			}
 		});

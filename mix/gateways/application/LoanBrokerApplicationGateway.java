@@ -25,6 +25,7 @@ public class LoanBrokerApplicationGateway extends Observable {
     private Map<String, String> requestsWithMessageIds = new HashMap<>();
     private Map<String, LoanRequest> loanRequestWithMessageIds = new HashMap<>();
     private Map<String, BankInterestRequest> bankInterestRequestWithMessageIds = new HashMap<>();
+    private Map<String, BankInterestReply> bankInterestReplyWithMessageIds = new HashMap<>();
     private List<RequestReply<BankInterestRequest, LoanReply>> requestReplies = new ArrayList<>();
 
     public LoanBrokerApplicationGateway() {
@@ -47,11 +48,15 @@ public class LoanBrokerApplicationGateway extends Observable {
                     correlationId = message.getJMSMessageID();
                     loanRequestWithMessageIds.put(correlationId, loanRequest);
 
+                    System.out.println("LoanRequestBroker Received ID: " + correlationId);
+
                     BankInterestRequest bankInterestRequest = new BankInterestRequest(loanRequest.getAmount(), loanRequest.getTime());
                     RequestReply<BankInterestRequest, LoanReply> requestReply = new RequestReply<>(bankInterestRequest, null);
                     requestReplies.add(requestReply);
 
                     String messageId = clientSender.produce(bankInterestRequest, null);
+
+                    System.out.println("BankInterstReplyBroker Sended ID: " + messageId);
 
                     if(messageId != null) {
                         bankInterestRequestWithMessageIds.put(messageId, bankInterestRequest);
@@ -59,12 +64,8 @@ public class LoanBrokerApplicationGateway extends Observable {
 
                     requestsWithMessageIds.put(messageId, correlationId);
 
-                    Map<String, Object> maps = new HashMap<>();
-                    maps.put("requestReply", requestReply);
-                    maps.put("loanRequest", loanRequestWithMessageIds.get(messageId));
-
                     setChanged();
-                    notifyObservers(maps);
+                    notifyObservers(messageId);
                 } catch (JMSException e) {
                     e.printStackTrace();
                 }
@@ -81,25 +82,29 @@ public class LoanBrokerApplicationGateway extends Observable {
                 String correlationId = null;
 
                 try {
+
                     bankInterestReply = (BankInterestReply) ((ObjectMessage) message).getObject();
                     correlationId = message.getJMSCorrelationID();
+
+                    System.out.println("BankInterstReplyBroker Received ID: " + correlationId);
 
                     String messageId = requestsWithMessageIds.get(correlationId);
                     BankInterestRequest bankInterestRequest = bankInterestRequestWithMessageIds.get(correlationId);
                     LoanReply loanReply = new LoanReply(bankInterestReply.getInterest(), bankInterestReply.getQuoteId());
+
+                    bankInterestReplyWithMessageIds.put(messageId, bankInterestReply);
 
                     RequestReply<BankInterestRequest, LoanReply> requestReply = requestReplies.stream().filter(o -> o.getRequest().equals(bankInterestRequest)).findFirst().get();
                     requestReply.setReply(loanReply);
 
                     String sendMessagId = bankSender.produce(loanReply, messageId);
 
-                    Map<String, Object> maps = new HashMap<>();
-                    maps.put("requestReply", requestReply);
-                    maps.put("bankInterestReply", bankInterestReply);
-                    maps.put("loanRequest", loanRequestWithMessageIds.get(messageId));
+                    System.out.println("BankInterstReplyBroker Sended ID: " + sendMessagId + " - CorrelationId: " + messageId);
+
+                    String newMessageId = requestsWithMessageIds.get(correlationId);
 
                     setChanged();
-                    notifyObservers(maps);
+                    notifyObservers(newMessageId);
                 } catch (JMSException e) {
                     e.printStackTrace();
                 }
@@ -117,6 +122,10 @@ public class LoanBrokerApplicationGateway extends Observable {
 
     public Map<String, BankInterestRequest> getBankInterestRequestWithMessageIds() {
         return bankInterestRequestWithMessageIds;
+    }
+
+    public Map<String, BankInterestReply> getBankInterestReplyWithMessageIds() {
+        return bankInterestReplyWithMessageIds;
     }
 
     public List<RequestReply<BankInterestRequest, LoanReply>> getRequestReplies() {
