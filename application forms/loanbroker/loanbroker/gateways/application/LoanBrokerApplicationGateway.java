@@ -115,7 +115,9 @@ public abstract class LoanBrokerApplicationGateway {
         String correlationId = loanRequestWithMessageId.inverse().get(loanRequest);
         aggregationAmount.put(correlationId, sendTo.size());
 
-        boolean bool = sendTo.stream().allMatch(bank -> sender.produce(QueueNames.bankInterestRequest + "_" + bank, bankInterestRequest, correlationId, aggregationAmount.size()) != null);
+        for(String bank : sendTo) {
+            sender.produce(QueueNames.bankInterestRequest + "_" + bank.toUpperCase(), bankInterestRequest, correlationId, aggregationAmount.size());
+        }
     }
 
     private List<String> acceptedBanks(BankInterestRequest bankInterestRequest) {

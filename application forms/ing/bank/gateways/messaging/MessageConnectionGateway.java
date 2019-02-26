@@ -1,4 +1,4 @@
-package loanbroker.loanbroker.gateways.messaging;
+package ing.bank.gateways.messaging;
 
 import messaging.QueueNames;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -32,9 +32,7 @@ public class MessageConnectionGateway {
         props.setProperty(Context.PROVIDER_URL, "tcp://localhost:61616");
         props.put(("queue." + QueueNames.loanRequest), QueueNames.loanRequest);
         props.put(("queue." + QueueNames.loanReply), QueueNames.loanReply);
-        props.put(("queue." + QueueNames.bankInterestRequest + "_ING"), QueueNames.bankInterestRequest + "_ING");
-        props.put(("queue." + QueueNames.bankInterestRequest + "_ABNAMRO"), QueueNames.bankInterestRequest + "_ABNAMRO");
-        props.put(("queue." + QueueNames.bankInterestRequest + "_RABOBANK"), QueueNames.bankInterestRequest + "_RABOBANK");
+        props.put(("queue." + QueueNames.bankInterestRequest + "_ABNAMRO"), QueueNames.bankInterestRequest + "_ING");
         props.put(("queue." + QueueNames.bankInterestReply), QueueNames.bankInterestReply);
 
         try {

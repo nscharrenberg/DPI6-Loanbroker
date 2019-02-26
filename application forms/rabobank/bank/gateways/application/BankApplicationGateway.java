@@ -1,4 +1,4 @@
-package abnamro.bank.gateways.application;
+package rabobank.bank.gateways.application;
 
 import abnamro.bank.gateways.messaging.MessageReceiverGateway;
 import abnamro.bank.gateways.messaging.MessageSenderGateway;
@@ -27,7 +27,7 @@ public abstract class BankApplicationGateway {
         this.sender = new MessageSenderGateway();
         this.receiver = new MessageReceiverGateway();
 
-        MessageConsumer consumer = receiver.consume(QueueNames.bankInterestRequest + "_ABNAMRO");
+        MessageConsumer consumer = receiver.consume(QueueNames.bankInterestRequest + "_RABOBANK");
         try {
             consumer.setMessageListener(new MessageListener() {
                 @Override

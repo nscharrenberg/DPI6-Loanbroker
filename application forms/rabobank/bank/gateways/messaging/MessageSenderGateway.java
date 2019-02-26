@@ -1,4 +1,4 @@
-package abnamro.bank.gateways.messaging;
+package rabobank.bank.gateways.messaging;
 
 import javax.jms.Destination;
 import javax.jms.JMSException;

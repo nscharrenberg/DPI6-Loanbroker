@@ -24,7 +24,7 @@ public class MessageSenderGateway extends MessageConnectionGateway {
             }
 
             if(aggregatorId != 0 && messageId != null) {
-                msg.setIntProperty(msg.getJMSMessageID(), aggregatorId);
+                msg.setIntProperty(messageId, aggregatorId);
             }
 
             producer.send(msg);

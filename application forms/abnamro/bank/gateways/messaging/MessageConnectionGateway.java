@@ -32,7 +32,7 @@ public class MessageConnectionGateway {
         props.setProperty(Context.PROVIDER_URL, "tcp://localhost:61616");
         props.put(("queue." + QueueNames.loanRequest), QueueNames.loanRequest);
         props.put(("queue." + QueueNames.loanReply), QueueNames.loanReply);
-        props.put(("queue." + QueueNames.bankInterestRequest), QueueNames.bankInterestRequest);
+        props.put(("queue." + QueueNames.bankInterestRequest + "_ABNAMRO"), QueueNames.bankInterestRequest + "_ABNAMRO");
         props.put(("queue." + QueueNames.bankInterestReply), QueueNames.bankInterestReply);
 
         try {

@@ -1,4 +1,4 @@
-package abnamro.bank;
+package ing.bank;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
