@@ -8,13 +8,10 @@ import java.awt.event.ActionListener;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Set;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
-import gateways.application.BankApplicationGateway;
-import javafx.application.Platform;
 import model.bank.*;
 import messaging.requestreply.RequestReply;
 

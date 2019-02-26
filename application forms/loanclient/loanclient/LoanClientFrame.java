@@ -10,12 +10,12 @@ import java.util.Observer;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
-import gateways.application.LoanClientApplicationGateway;
-import javafx.application.Platform;
+import com.google.common.collect.Iterables;
+import loanclient.loanclient.gateways.application.LoanClientApplicationGateway;
 import messaging.requestreply.RequestReply;
 import model.loan.*;
 
-public class LoanClientFrame extends JFrame implements Observer {
+public class LoanClientFrame extends JFrame {
 
 	/**
 	 * 
@@ -37,9 +37,6 @@ public class LoanClientFrame extends JFrame implements Observer {
 	 * Create the frame.
 	 */
 	public LoanClientFrame() {
-		this.loanClientApplicationGateway = new LoanClientApplicationGateway();
-		this.loanClientApplicationGateway.addObserver(this);
-
 		setTitle("Loan Client");
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -135,25 +132,36 @@ public class LoanClientFrame extends JFrame implements Observer {
 		
 		requestReplyList = new JList<RequestReply<LoanRequest,LoanReply>>(listModel);
 		scrollPane.setViewportView(requestReplyList);
+
+		loanClientApplicationGateway = new LoanClientApplicationGateway() {
+			@Override
+			public void onLoanReplyArrived(RequestReply<LoanRequest, LoanReply> requestReply) {
+				RequestReply<LoanRequest, LoanReply> rr = getRequestReply(requestReply.getRequest());
+				if (rr != null) {
+					rr.setReply(requestReply.getReply());
+				}
+				requestReplyList.repaint();
+			}
+		};
 	}
-	
+
 	/**
-	 * This method returns the RequestReply line that belongs to the request from requestReplyList (JList). 
+	 * This method returns the RequestReply line that belongs to the request from requestReplyList (JList).
 	 * You can call this method when an reply arrives in order to add this reply to the right request in requestReplyList.
 	 * @param request
 	 * @return
 	 */
-   private RequestReply<LoanRequest,LoanReply> getRequestReply(LoanRequest request){    
-     
-     for (int i = 0; i < listModel.getSize(); i++){
-    	 RequestReply<LoanRequest,LoanReply> rr =listModel.get(i);
-    	 if (rr.getRequest() == request){
-    		 return rr;
-    	 }
-     }
-     
-     return null;
-   }
+	private RequestReply<LoanRequest,LoanReply> getRequestReply(LoanRequest request){
+
+		for (int i = 0; i < listModel.getSize(); i++){
+			RequestReply<LoanRequest,LoanReply> rr = listModel.get(i);
+			if (rr.getRequest() == request){
+				return rr;
+			}
+		}
+
+		return null;
+	}
 	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -165,35 +173,6 @@ public class LoanClientFrame extends JFrame implements Observer {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-			}
-		});
-	}
-
-	/**
-	 * This method is called whenever the observed object is changed. An
-	 * application calls an <tt>Observable</tt> object's
-	 * <code>notifyObservers</code> method to have all the object's
-	 * observers notified of the change.
-	 *
-	 * @param o   the observable object.
-	 * @param arg an argument passed to the <code>notifyObservers</code>
-	 */
-	@Override
-	public void update(Observable o, Object arg) {
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				if(arg != null) {
-					try {
-						RequestReply<LoanRequest, LoanReply> requestReply = (RequestReply<LoanRequest, LoanReply>) arg;
-						getRequestReply(requestReply.getRequest());
-					} catch(Exception e) {
-						e.printStackTrace();
-					}
-
-				}
-
-				requestReplyList.repaint();
 			}
 		});
 	}

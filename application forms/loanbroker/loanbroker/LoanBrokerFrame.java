@@ -4,18 +4,13 @@ import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
-import gateways.application.LoanBrokerApplicationGateway;
-import javafx.application.Platform;
-import messaging.requestreply.RequestReply;
 import model.bank.*;
-import model.loan.LoanReply;
 import model.loan.LoanRequest;
 
 
