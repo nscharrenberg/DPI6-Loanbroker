@@ -1,4 +1,4 @@
-package gateways.messaging;
+package loanclient.loanclient.gateways.messaging;
 
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -23,9 +23,5 @@ public class MessageReceiverGateway extends MessageConnectionGateway {
             e.printStackTrace();
             return consumer;
         }
-    }
-
-    public void listen(MessageListener listener) throws JMSException {
-        this.consumer.setMessageListener(listener);
     }
 }

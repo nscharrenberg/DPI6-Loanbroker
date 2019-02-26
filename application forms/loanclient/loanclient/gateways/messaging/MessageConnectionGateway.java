@@ -1,4 +1,4 @@
-package gateways.messaging;
+package loanclient.loanclient.gateways.messaging;
 
 import messaging.QueueNames;
 import org.apache.activemq.ActiveMQConnectionFactory;

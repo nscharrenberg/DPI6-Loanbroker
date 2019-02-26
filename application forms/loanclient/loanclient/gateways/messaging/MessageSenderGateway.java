@@ -1,4 +1,4 @@
-package gateways.messaging;
+package loanclient.loanclient.gateways.messaging;
 
 import javax.jms.Destination;
 import javax.jms.JMSException;

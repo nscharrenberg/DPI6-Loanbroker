@@ -1,5 +1,9 @@
 package loanbroker.loanbroker.gateways.application;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Iterables;
 import loanbroker.loanbroker.gateways.messaging.MessageReceiverGateway;
 import loanbroker.loanbroker.gateways.messaging.MessageSenderGateway;
 import messaging.QueueNames;
@@ -8,127 +12,154 @@ import model.bank.BankInterestReply;
 import model.bank.BankInterestRequest;
 import model.loan.LoanReply;
 import model.loan.LoanRequest;
+import net.sourceforge.jeval.EvaluationException;
+import net.sourceforge.jeval.Evaluator;
 
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-import javax.jms.ObjectMessage;
+import javax.jms.*;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
-public class LoanBrokerApplicationGateway extends Observable {
-    private MessageSenderGateway clientSender;
-    private MessageReceiverGateway clientReceiver;
-    private MessageSenderGateway bankSender;
-    private MessageReceiverGateway bankReceiver;
+import static com.google.common.collect.Ordering.natural;
+
+public abstract class LoanBrokerApplicationGateway {
+    private MessageSenderGateway sender;
+    private MessageReceiverGateway receiver;
 
     // Mapping the messaging id's of BankInterestRequest with LoanRequest
-    private Map<String, String> requestsWithMessageIds = new HashMap<>();
-    private Map<String, LoanRequest> loanRequestWithMessageIds = new HashMap<>();
-    private Map<String, BankInterestRequest> bankInterestRequestWithMessageIds = new HashMap<>();
-    private Map<String, BankInterestReply> bankInterestReplyWithMessageIds = new HashMap<>();
-    private List<RequestReply<BankInterestRequest, LoanReply>> requestReplies = new ArrayList<>();
+
+    BiMap<String, LoanRequest> loanRequestWithMessageId = HashBiMap.create();
+    BiMap<String, Integer> aggregationAmount = HashBiMap.create();
+    BiMap<String, List<BankInterestReply>> interestReplies = HashBiMap.create();
 
     public LoanBrokerApplicationGateway() {
-        this.clientSender = new MessageSenderGateway(QueueNames.bankInterestRequest);
-        this.clientReceiver = new MessageReceiverGateway(QueueNames.loanRequest);
-        this.bankSender = new MessageSenderGateway(QueueNames.loanReply);
-        this.bankReceiver = new MessageReceiverGateway(QueueNames.bankInterestReply);
+        receiver = new MessageReceiverGateway();
+        sender = new MessageSenderGateway();
 
-        /**
-         * LoanRequest Broker
-         */
-        this.clientReceiver.consume(new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-                LoanRequest loanRequest = null;
-                String correlationId = null;
+        receiveLoanRequest();
+        receiveBankInterestReply();
+    }
 
-                try {
-                    loanRequest = (LoanRequest)((ObjectMessage) message).getObject();
-                    correlationId = message.getJMSMessageID();
-                    loanRequestWithMessageIds.put(correlationId, loanRequest);
+    private BankInterestReply GetReplyWithLowestInterest(List<BankInterestReply> replies) {
+       return replies.stream().min(Comparator.comparingDouble(BankInterestReply::getInterest)).orElseThrow(NoSuchElementException::new);
+    }
 
-                    System.out.println("LoanRequestBroker Received ID: " + correlationId);
+    private void receiveLoanRequest() {
+        MessageConsumer consumer = receiver.consume(QueueNames.loanRequest);
+        try {
+            consumer.setMessageListener(new MessageListener() {
+                @Override
+                public void onMessage(Message message) {
+                    LoanRequest loanRequest = null;
+                    String correlationId = null;
 
-                    BankInterestRequest bankInterestRequest = new BankInterestRequest(loanRequest.getAmount(), loanRequest.getTime());
-                    RequestReply<BankInterestRequest, LoanReply> requestReply = new RequestReply<>(bankInterestRequest, null);
-                    requestReplies.add(requestReply);
-
-                    String messageId = clientSender.produce(bankInterestRequest, null);
-
-                    System.out.println("BankInterstReplyBroker Sended ID: " + messageId);
-
-                    if(messageId != null) {
-                        bankInterestRequestWithMessageIds.put(messageId, bankInterestRequest);
+                    try {
+                        loanRequest = (LoanRequest)((ObjectMessage) message).getObject();
+                        correlationId = message.getJMSMessageID();
+                        loanRequestWithMessageId.put(correlationId, loanRequest);
+                    } catch (JMSException e) {
+                        e.printStackTrace();
                     }
 
-                    requestsWithMessageIds.put(messageId, correlationId);
-
-                    setChanged();
-                    notifyObservers(messageId);
-                } catch (JMSException e) {
-                    e.printStackTrace();
+                    OnLoanRequestArrived(loanRequest);
                 }
-            }
-        });
+            });
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+    }
 
-        /**
-         * BankInterestReply Broker
-         */
-        this.bankReceiver.consume(new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-                BankInterestReply bankInterestReply = null;
-                String correlationId = null;
+    private void receiveBankInterestReply() {
+        MessageConsumer consumer = receiver.consume(QueueNames.bankInterestReply);
+        try {
+            consumer.setMessageListener(new MessageListener() {
+                @Override
+                public void onMessage(Message message) {
+                    BankInterestReply bankInterestReply = null;
+                    String correlationId = null;
+                    LoanRequest loanRequest = null;
+                    List<BankInterestReply> currentReplies = null;
 
-                try {
+                    try {
+                        bankInterestReply = (BankInterestReply) ((ObjectMessage) message).getObject();
+                        correlationId = message.getJMSCorrelationID();
+                        loanRequest = loanRequestWithMessageId.get(correlationId);
+                        currentReplies = interestReplies.get(correlationId);
 
-                    bankInterestReply = (BankInterestReply) ((ObjectMessage) message).getObject();
-                    correlationId = message.getJMSCorrelationID();
+                        if(currentReplies == null) {
+                            currentReplies = new ArrayList<>();
+                        }
 
-                    System.out.println("BankInterstReplyBroker Received ID: " + correlationId);
+                        currentReplies.add(bankInterestReply);
+                        interestReplies.put(correlationId, currentReplies);
+                    } catch (JMSException e) {
+                        e.printStackTrace();
+                    }
 
-                    String messageId = requestsWithMessageIds.get(correlationId);
-                    BankInterestRequest bankInterestRequest = bankInterestRequestWithMessageIds.get(correlationId);
-                    LoanReply loanReply = new LoanReply(bankInterestReply.getInterest(), bankInterestReply.getQuoteId());
-
-                    bankInterestReplyWithMessageIds.put(messageId, bankInterestReply);
-
-                    RequestReply<BankInterestRequest, LoanReply> requestReply = requestReplies.stream().filter(o -> o.getRequest().equals(bankInterestRequest)).findFirst().get();
-                    requestReply.setReply(loanReply);
-
-                    String sendMessagId = bankSender.produce(loanReply, messageId);
-
-                    System.out.println("BankInterstReplyBroker Sended ID: " + sendMessagId + " - CorrelationId: " + messageId);
-
-                    String newMessageId = requestsWithMessageIds.get(correlationId);
-
-                    setChanged();
-                    notifyObservers(newMessageId);
-                } catch (JMSException e) {
-                    e.printStackTrace();
+                    if(interestReplies.get(correlationId).size() == aggregationAmount.get(correlationId) && currentReplies != null) {
+                        OnInterestReplyArrived(loanRequest, GetReplyWithLowestInterest(currentReplies));
+                    }
                 }
-            }
-        });
+            });
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
     }
 
-    public Map<String, String> getRequestsWithMessageIds() {
-        return requestsWithMessageIds;
+    public void sendLoanReply(LoanReply loanReply, LoanRequest loanRequest) {
+        sender.produce(QueueNames.loanReply, loanReply, loanRequestWithMessageId.inverse().get(loanRequest), 0);
     }
 
-    public Map<String, LoanRequest> getLoanRequestWithMessageIds() {
-        return loanRequestWithMessageIds;
+    public void sendBankInterestRequest(BankInterestRequest bankInterestRequest, LoanRequest loanRequest) {
+        List<String> sendTo = acceptedBanks(bankInterestRequest);
+        String correlationId = loanRequestWithMessageId.inverse().get(loanRequest);
+        aggregationAmount.put(correlationId, sendTo.size());
+
+        boolean bool = sendTo.stream().allMatch(bank -> sender.produce(QueueNames.bankInterestRequest + "_" + bank, bankInterestRequest, correlationId, aggregationAmount.size()) != null);
     }
 
-    public Map<String, BankInterestRequest> getBankInterestRequestWithMessageIds() {
-        return bankInterestRequestWithMessageIds;
+    private List<String> acceptedBanks(BankInterestRequest bankInterestRequest) {
+        String ING = "#{amount} <= 100000 && #{time} <= 10";
+        String ABNAMRO = "#{amount} >= 200000 && #{amount} <= 300000  && #{time} <= 20";
+        String RABOBANK = "#{amount} <= 250000 && #{time} <= 15";
+
+        Evaluator evaluator = new Evaluator();
+        evaluator.putVariable("amount", Integer.toString(bankInterestRequest.getAmount()));
+        evaluator.putVariable("time", Integer.toString(bankInterestRequest.getTime()));
+
+        String result;
+        List<String> acceptedBanks = new ArrayList<>();
+
+        try {
+            result = evaluator.evaluate(ING);
+            if(result.equals("1.0"))
+                acceptedBanks.add("ING");
+        }
+        catch (EvaluationException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            result = evaluator.evaluate(ABNAMRO);
+            if(result.equals("1.0"))
+                acceptedBanks.add("ABN_AMRO");
+        }
+        catch (EvaluationException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            result = evaluator.evaluate(RABOBANK);
+            if(result.equals("1.0"))
+                acceptedBanks.add("Rabobank");
+        } catch (EvaluationException e) {
+            e.printStackTrace();
+        }
+
+        return acceptedBanks;
+
     }
 
-    public Map<String, BankInterestReply> getBankInterestReplyWithMessageIds() {
-        return bankInterestReplyWithMessageIds;
-    }
-
-    public List<RequestReply<BankInterestRequest, LoanReply>> getRequestReplies() {
-        return requestReplies;
-    }
+    protected abstract void OnInterestReplyArrived(LoanRequest loanRequest, BankInterestReply interestReply);
+    protected abstract void OnLoanRequestArrived(LoanRequest loanRequest);
 }

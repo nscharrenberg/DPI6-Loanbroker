@@ -1,32 +1,26 @@
-package gateways.application;
+package loanclient.loanclient.gateways.application;
 
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
-import gateways.messaging.MessageReceiverGateway;
-import gateways.messaging.MessageSenderGateway;
+import loanclient.loanclient.gateways.messaging.MessageReceiverGateway;
+import loanclient.loanclient.gateways.messaging.MessageSenderGateway;
 import messaging.QueueNames;
 import messaging.requestreply.RequestReply;
 import model.loan.LoanReply;
 import model.loan.LoanRequest;
 
 import javax.jms.*;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
 
-public class LoanClientApplicationGateway extends Observable {
+public abstract class LoanClientApplicationGateway {
     private MessageSenderGateway sender;
-    private MessageReceiverGateway receiver;
 
     private BiMap<String, RequestReply<LoanRequest, LoanReply>> requestReplyHashMap = HashBiMap.create();
 
     public LoanClientApplicationGateway() {
         this.sender = new MessageSenderGateway();
-        this.receiver = new MessageReceiverGateway();
+        MessageReceiverGateway receiver = new MessageReceiverGateway();
 
         /**
          * LoanReply
@@ -36,68 +30,42 @@ public class LoanClientApplicationGateway extends Observable {
             mc.setMessageListener(new MessageListener() {
                 @Override
                 public void onMessage(Message message) {
-                    LoanReply loanReply;
-                    String messageId;
+                    LoanReply loanReply = null;
+                    String messageId = null;
+                    RequestReply<LoanRequest, LoanReply> requestReply = null;
+
 
                     try {
                         loanReply = (LoanReply)((ObjectMessage) message).getObject();
                         messageId = message.getJMSMessageID();
-                        RequestReply<LoanRequest, LoanReply> requestReply = requestReplyHashMap.get(messageId);
+                        requestReply = requestReplyHashMap.get(messageId);
                         requestReply.setReply(loanReply);
-
-
-
                     } catch (JMSException e) {
                         e.printStackTrace();
                     }
+
+                    onLoanReplyArrived(requestReply);
                 }
             });
         } catch (JMSException e) {
             e.printStackTrace();
         }
-
-        this.receiver.consume(new MessageListener() {
-            @Override
-            public void onMessage(Message message) {
-                LoanReply loanReply;
-                String correlationId;
-
-                try {
-                    loanReply = (LoanReply)((ObjectMessage) message).getObject();
-                    correlationId = message.getJMSCorrelationID();
-
-                    System.out.println("LoanClientBroker Received ID: " + correlationId);
-
-                    RequestReply<LoanRequest, LoanReply> requestReply = requestReplyHashMap.get(correlationId);
-                    requestReply.setReply(loanReply);
-
-                    setChanged();
-                    notifyObservers(correlationId);
-                } catch (JMSException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
     }
 
     public String sendLoanRequest(LoanRequest loanRequest) {
         RequestReply<LoanRequest, LoanReply> requestReply = new RequestReply<>(loanRequest, null);
-
-        String messageId = this.sender.produce(loanRequest, null);
-        System.out.println("LoanClientBroker Sended ID: " + messageId);
-        int test = 1;
+        String messageId = sender.produce(QueueNames.loanRequest, loanRequest, null);
 
         if(messageId != null) {
             requestReplyHashMap.put(messageId, requestReply);
         }
 
-        setChanged();
-        notifyObservers(messageId);
-
         return messageId;
     }
 
-    public Map<String, RequestReply<LoanRequest, LoanReply>> getRequestReplyHashMap() {
+    public BiMap<String, RequestReply<LoanRequest, LoanReply>> getRequestReplyHashMap() {
         return requestReplyHashMap;
     }
+
+    public abstract void onLoanReplyArrived(RequestReply<LoanRequest, LoanReply> requestReply);
 }
