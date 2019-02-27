@@ -4,22 +4,17 @@ import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
-import gateways.application.LoanBrokerApplicationGateway;
-import javafx.application.Platform;
-import messaging.requestreply.RequestReply;
+import loanbroker.loanbroker.gateways.application.LoanBrokerApplicationGateway;
 import model.bank.*;
 import model.loan.LoanReply;
 import model.loan.LoanRequest;
 
 
-public class LoanBrokerFrame extends JFrame implements Observer {
+public class LoanBrokerFrame extends JFrame {
 
 	/**
 	 * 
@@ -48,10 +43,6 @@ public class LoanBrokerFrame extends JFrame implements Observer {
 	 * Create the frame.
 	 */
 	public LoanBrokerFrame() {
-		this.loanBrokerApplicationGateway = new LoanBrokerApplicationGateway();
-
-		this.loanBrokerApplicationGateway.addObserver(this);
-
 		setTitle("Loan Broker");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
@@ -76,6 +67,22 @@ public class LoanBrokerFrame extends JFrame implements Observer {
 		
 		list = new JList<JListLine>(listModel);
 		scrollPane.setViewportView(list);
+
+		loanBrokerApplicationGateway = new LoanBrokerApplicationGateway() {
+			@Override
+			protected void OnInterestReplyArrived(LoanRequest loanRequest, BankInterestReply interestReply) {
+				add(loanRequest, interestReply);
+				loanBrokerApplicationGateway.sendLoanReply(new LoanReply(interestReply.getInterest(), interestReply.getQuoteId()), loanRequest);
+			}
+
+			@Override
+			protected void OnLoanRequestArrived(LoanRequest loanRequest) {
+				add(loanRequest);
+				BankInterestRequest bankInterestRequest = new BankInterestRequest(loanRequest.getAmount(), loanRequest.getTime());
+				add(loanRequest, bankInterestRequest);
+				loanBrokerApplicationGateway.sendBankInterestRequest(bankInterestRequest, loanRequest);
+			}
+		};
 	}
 	
 	 private JListLine getRequestReply(LoanRequest request){    
@@ -109,66 +116,5 @@ public class LoanBrokerFrame extends JFrame implements Observer {
 			rr.setBankReply(bankReply);
             list.repaint();
 		}		
-	}
-
-
-	/**
-	 * This method is called whenever the observed object is changed. An
-	 * application calls an <tt>Observable</tt> object's
-	 * <code>notifyObservers</code> method to have all the object's
-	 * observers notified of the change.
-	 *
-	 * @param o   the observable object.
-	 * @param arg an argument passed to the <code>notifyObservers</code>
-	 */
-	@Override
-	public void update(Observable o, Object arg) {
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				if(arg != null) {
-					String messageId = arg.toString();
-					LoanRequest loanRequest = null;
-					BankInterestReply bankInterestReply = null;
-					BankInterestRequest bankInterestRequest = null;
-					String tmpMessageId = null;
-
-					try {
-						tmpMessageId = loanBrokerApplicationGateway.getRequestsWithMessageIds().get(messageId);
-
-						if(tmpMessageId != null) {
-							loanRequest = loanBrokerApplicationGateway.getLoanRequestWithMessageIds().get(loanBrokerApplicationGateway.getRequestsWithMessageIds().get(messageId));
-						} else {
-							loanRequest = loanBrokerApplicationGateway.getLoanRequestWithMessageIds().get(messageId);
-						}
-
-
-						bankInterestReply = loanBrokerApplicationGateway.getBankInterestReplyWithMessageIds().get(messageId);
-						bankInterestRequest = loanBrokerApplicationGateway.getBankInterestRequestWithMessageIds().get(messageId);
-
-						System.out.println("loanRequest: " + loanRequest);
-						System.out.println("bankInterestReply: " + bankInterestReply);
-						System.out.println("bankInterestRequest: " + bankInterestRequest);
-
-						if(loanRequest == null) {
-							throw new Exception("LoanRequest can not be null on update!");
-						}
-
-
-
-						if(bankInterestReply != null) {
-							add(loanRequest, bankInterestReply);
-						} else if(bankInterestRequest != null) {
-							add(loanRequest);
-							add(loanRequest, bankInterestRequest);
-						}
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-
-				list.repaint();
-			}
-		});
 	}
 }

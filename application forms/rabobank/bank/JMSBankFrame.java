@@ -1,4 +1,4 @@
-package abnamro.bank;
+package rabobank.bank;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -9,7 +9,7 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
-import abnamro.bank.gateways.application.BankApplicationGateway;
+import rabobank.bank.gateways.application.BankApplicationGateway;
 import model.bank.*;
 import messaging.requestreply.RequestReply;
 
@@ -46,7 +46,7 @@ public class JMSBankFrame extends JFrame {
 	 * Create the frame.
 	 */
 	public JMSBankFrame() {
-		setTitle("JMS Bank - ABN AMRO");
+		setTitle("JMS Bank - RABOBANK");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
@@ -94,7 +94,7 @@ public class JMSBankFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				RequestReply<BankInterestRequest, BankInterestReply> rr = list.getSelectedValue();
 				double interest = Double.parseDouble((tfReply.getText()));
-				BankInterestReply reply = new BankInterestReply(interest,"ABNAMRO");
+				BankInterestReply reply = new BankInterestReply(interest,"RABOBANK");
 				if (rr!= null && reply != null){
 					rr.setReply(reply);
                     list.repaint();
