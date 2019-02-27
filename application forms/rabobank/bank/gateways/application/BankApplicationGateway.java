@@ -1,20 +1,14 @@
 package rabobank.bank.gateways.application;
 
-import abnamro.bank.gateways.messaging.MessageReceiverGateway;
-import abnamro.bank.gateways.messaging.MessageSenderGateway;
+import rabobank.bank.gateways.messaging.MessageReceiverGateway;
+import rabobank.bank.gateways.messaging.MessageSenderGateway;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import messaging.QueueNames;
 import messaging.requestreply.RequestReply;
 import model.bank.BankInterestReply;
 import model.bank.BankInterestRequest;
-import model.loan.LoanReply;
-import model.loan.LoanRequest;
-
 import javax.jms.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Observable;
 
 public abstract class BankApplicationGateway {
     private MessageSenderGateway sender;

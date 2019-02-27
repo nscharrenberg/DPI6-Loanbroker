@@ -37,7 +37,7 @@ public abstract class LoanClientApplicationGateway {
 
                     try {
                         loanReply = (LoanReply)((ObjectMessage) message).getObject();
-                        messageId = message.getJMSMessageID();
+                        messageId = message.getJMSCorrelationID();
                         requestReply = requestReplyHashMap.get(messageId);
                         requestReply.setReply(loanReply);
                     } catch (JMSException e) {

@@ -144,7 +144,7 @@ public abstract class LoanBrokerApplicationGateway {
         try {
             result = evaluator.evaluate(ABNAMRO);
             if(result.equals("1.0"))
-                acceptedBanks.add("ABN_AMRO");
+                acceptedBanks.add("ABNAMRO");
         }
         catch (EvaluationException e) {
             e.printStackTrace();
@@ -153,7 +153,7 @@ public abstract class LoanBrokerApplicationGateway {
         try {
             result = evaluator.evaluate(RABOBANK);
             if(result.equals("1.0"))
-                acceptedBanks.add("Rabobank");
+                acceptedBanks.add("RABOBANK");
         } catch (EvaluationException e) {
             e.printStackTrace();
         }
