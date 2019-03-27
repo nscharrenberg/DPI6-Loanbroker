@@ -8,7 +8,6 @@ import javax.jms.Connection;
 import javax.jms.Session;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import java.io.Serializable;
 import java.util.Properties;
 
 public class MessageConnectionGateway {
@@ -22,7 +21,7 @@ public class MessageConnectionGateway {
     }
 
     /**
-     * Initialize the connection with the broker.
+     * Initialize the connection with the jobseeker.
      */
     private void initConnection() {
         Properties props = new Properties();

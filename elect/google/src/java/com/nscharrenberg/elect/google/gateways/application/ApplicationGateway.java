@@ -1,0 +1,60 @@
+package com.nscharrenberg.elect.google.gateways.application;
+
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.gson.Gson;
+import com.nscharrenberg.elect.google.domain.OfferReply;
+import com.nscharrenberg.elect.google.domain.OfferRequest;
+import com.nscharrenberg.elect.google.domain.ResumeReply;
+import com.nscharrenberg.elect.google.domain.ResumeRequest;
+import com.nscharrenberg.elect.google.gateways.messaging.MessageReceiverGateway;
+import com.nscharrenberg.elect.google.gateways.messaging.MessageSenderGateway;
+import com.nscharrenberg.elect.google.gateways.messaging.requestreply.RequestReply;
+
+import javax.jms.*;
+
+public abstract class ApplicationGateway {
+    private MessageSenderGateway sender;
+    private MessageReceiverGateway receiver;
+
+    private BiMap<OfferRequest, String> offerRequestStringBiMap = HashBiMap.create();
+
+    public ApplicationGateway() {
+        this.sender = new MessageSenderGateway();
+        this.receiver = new MessageReceiverGateway();
+
+        MessageConsumer messageConsumer = receiver.consume(QueueName.OFFER_JOB_REQUEST);
+
+        try {
+            messageConsumer.setMessageListener(new MessageListener() {
+                @Override
+                public void onMessage(Message message) {
+                    OfferRequest offerRequest = null;
+                    String messageId = null;
+
+                    try {
+                        Gson gson = new Gson();
+                        String json = (String) ((ObjectMessage) message).getObject();
+                        offerRequest = gson.fromJson(json, OfferRequest.class);
+                        messageId = message.getJMSCorrelationID();
+
+                        offerRequestStringBiMap.put(offerRequest, messageId);
+                    } catch (JMSException e) {
+                        e.printStackTrace();
+                    }
+
+                    onOfferRequestArrived(offerRequest);
+                }
+            });
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendOfferReply(RequestReply<OfferRequest, OfferReply> requestReply) {
+        String correlationId = offerRequestStringBiMap.get(requestReply.getRequest());
+        sender.produce(QueueName.OFFER_JOB_REPLY, requestReply.getReply(), correlationId);
+    }
+
+    public abstract void onOfferRequestArrived(OfferRequest offerRequest);
+}
