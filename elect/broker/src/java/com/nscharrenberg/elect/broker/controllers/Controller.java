@@ -31,6 +31,7 @@ public class Controller {
             protected void onOfferReplyArrived(ResumeRequest resumeRequest, OfferReply offerReply) {
                 add(resumeRequest, offerReply);
                 applicationGateway.sendResumeReply(new ResumeReply(offerReply.getCompanyId(), offerReply.getFunctionTitle(), offerReply.getSalary(), offerReply.getDuration(), offerReply.getContactEmail(), offerReply.getContactPersonName(), offerReply.getFunctionDescription()), resumeRequest);
+                messageList.refresh();
             }
 
             @Override
@@ -39,12 +40,14 @@ public class Controller {
                 OfferRequest offerRequest = new OfferRequest(resumeRequest.getFirstName(), resumeRequest.getLastName(), resumeRequest.getSector(), resumeRequest.getRegion(), resumeRequest.getSkills());
                 add(resumeRequest, offerRequest);
                 applicationGateway.sendOfferRequeest(offerRequest, resumeRequest);
+                messageList.refresh();
             }
         };
     }
 
     public void add(ResumeRequest resumeRequest) {
         observableList.add(new ListLine(resumeRequest));
+        messageList.refresh();
     }
 
     public void add(ResumeRequest resumeRequest, OfferRequest offerRequest) {
@@ -52,6 +55,7 @@ public class Controller {
 
         if(rr != null && offerRequest != null) {
             rr.setOfferRequest(offerRequest);
+            messageList.refresh();
         }
     }
 
@@ -60,6 +64,7 @@ public class Controller {
 
         if(rr != null && offerReply != null) {
             rr.setOfferReply(offerReply);
+            messageList.refresh();
         }
     }
 

@@ -61,4 +61,10 @@ public class OfferRequest implements Serializable {
     public void setSkills(String skills) {
         this.skills = skills;
     }
+
+    @Override
+    public String toString() {
+        return String.format("firstname=%s lastname=%s sector=%s region=%s skills=%s", firstName, lastName, sector, region, skills);
+
+    }
 }

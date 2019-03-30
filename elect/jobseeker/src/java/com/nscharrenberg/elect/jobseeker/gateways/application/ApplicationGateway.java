@@ -23,27 +23,24 @@ public abstract class ApplicationGateway {
         MessageConsumer messageConsumer = receiver.consume(QueueName.SEEK_JOB_REPLY);
 
         try {
-            messageConsumer.setMessageListener(new MessageListener() {
-                @Override
-                public void onMessage(Message message) {
-                    ResumeReply resumeReply = null;
-                    String messageId = null;
-                    RequestReply<ResumeRequest, ResumeReply> requestReply = null;
+            messageConsumer.setMessageListener(message -> {
+                ResumeReply resumeReply = null;
+                String messageId = null;
+                RequestReply<ResumeRequest, ResumeReply> requestReply = null;
 
-                    try {
-                        Gson gson = new Gson();
-                        String json = (String)((ObjectMessage) message).getObject();
-                        resumeReply = gson.fromJson(json, ResumeReply.class);
+                try {
+                    Gson gson = new Gson();
+                    String json = (String)((ObjectMessage) message).getObject();
+                    resumeReply = gson.fromJson(json, ResumeReply.class);
 
-                        messageId = message.getJMSCorrelationID();
-                        requestReply = requestReplyBiMap.get(messageId);
-                        requestReply.setReply(resumeReply);
-                    } catch (JMSException e) {
-                        e.printStackTrace();
-                    }
-
-                    onReplyArrived(requestReply);
+                    messageId = message.getJMSCorrelationID();
+                    requestReply = requestReplyBiMap.get(messageId);
+                    requestReply.setReply(resumeReply);
+                } catch (JMSException e) {
+                    e.printStackTrace();
                 }
+
+                onReplyArrived(requestReply);
             });
         } catch (JMSException e) {
             e.printStackTrace();

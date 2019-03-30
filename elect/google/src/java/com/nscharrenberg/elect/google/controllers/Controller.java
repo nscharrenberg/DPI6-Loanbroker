@@ -59,6 +59,7 @@ public class Controller {
             @Override
             public void onOfferRequestArrived(OfferRequest offerRequest) {
                observableList.add(new RequestReply<>(offerRequest, null));
+                messageList.refresh();
             }
         };
     }
@@ -78,6 +79,7 @@ public class Controller {
         if(rr != null && offerReply != null) {
             rr.setReply(offerReply);
             applicationGateway.sendOfferReply(rr);
+            messageList.refresh();
         }
     }
 

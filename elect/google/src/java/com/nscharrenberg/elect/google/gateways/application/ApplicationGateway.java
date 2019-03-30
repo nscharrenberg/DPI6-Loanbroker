@@ -26,25 +26,23 @@ public abstract class ApplicationGateway {
         MessageConsumer messageConsumer = receiver.consume(QueueName.OFFER_JOB_REQUEST);
 
         try {
-            messageConsumer.setMessageListener(new MessageListener() {
-                @Override
-                public void onMessage(Message message) {
-                    OfferRequest offerRequest = null;
-                    String messageId = null;
+            messageConsumer.setMessageListener(message -> {
+                OfferRequest offerRequest = null;
+                String messageId = null;
 
-                    try {
-                        Gson gson = new Gson();
-                        String json = (String) ((ObjectMessage) message).getObject();
-                        offerRequest = gson.fromJson(json, OfferRequest.class);
-                        messageId = message.getJMSCorrelationID();
+                try {
+                    System.out.println("Google received!");
+                    Gson gson = new Gson();
+                    String json = (String) ((ObjectMessage) message).getObject();
+                    offerRequest = gson.fromJson(json, OfferRequest.class);
+                    messageId = message.getJMSCorrelationID();
 
-                        offerRequestStringBiMap.put(offerRequest, messageId);
-                    } catch (JMSException e) {
-                        e.printStackTrace();
-                    }
-
-                    onOfferRequestArrived(offerRequest);
+                    offerRequestStringBiMap.put(offerRequest, messageId);
+                } catch (JMSException e) {
+                    e.printStackTrace();
                 }
+
+                onOfferRequestArrived(offerRequest);
             });
         } catch (JMSException e) {
             e.printStackTrace();

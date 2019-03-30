@@ -35,29 +35,28 @@ public abstract class ApplicationGateway {
         MessageConsumer messageConsumer = receiver.consume(QueueName.SEEK_JOB_REQUEST);
 
         try {
-            messageConsumer.setMessageListener(new MessageListener() {
-                @Override
-                public void onMessage(Message message) {
-                    ResumeRequest resumeRequest = null;
-                    String messageId = null;
+            messageConsumer.setMessageListener(message -> {
+                ResumeRequest resumeRequest = null;
+                String messageId = null;
 
-                    try {
-                        Gson gson = new Gson();
-                        String json = (String)((ObjectMessage) message).getObject();
-                        resumeRequest = gson.fromJson(json, ResumeRequest.class);
+                try {
+                    Gson gson = new Gson();
+                    String json = (String)((ObjectMessage) message).getObject();
+                    resumeRequest = gson.fromJson(json, ResumeRequest.class);
 
-                        messageId = message.getJMSMessageID();
-                        resumeRequestBiMap.put(messageId, resumeRequest);
-                        System.out.println(String.format("Message received in listener with msgId %s", messageId));
-                    } catch (JMSException e) {
-                        e.printStackTrace();
-                    }
-
-                    onResumeRequestArrived(resumeRequest);
+                    messageId = message.getJMSMessageID();
+                    resumeRequestBiMap.put(messageId, resumeRequest);
+                    System.out.println(String.format("Message received in listener with msgId %s", messageId));
+                } catch (JMSException e) {
+                    e.printStackTrace();
+                    System.out.println(String.format("Message received in listener with exception %s", e.getMessage()));
                 }
+
+                onResumeRequestArrived(resumeRequest);
             });
         } catch (JMSException e) {
             e.printStackTrace();
+            System.out.println(String.format("Message received in listener with exception %s", e.getMessage()));
         }
     }
 
@@ -65,34 +64,31 @@ public abstract class ApplicationGateway {
         MessageConsumer messageConsumer = receiver.consume(QueueName.OFFER_JOB_REPLY);
 
         try {
-            messageConsumer.setMessageListener(new MessageListener() {
-                @Override
-                public void onMessage(Message message) {
-                    OfferReply offerReply = null;
-                    String messageId = null;
-                    ResumeRequest resumeRequest = null;
-                    List<OfferReply> currentOffers = null;
+            messageConsumer.setMessageListener(message -> {
+                OfferReply offerReply = null;
+                String messageId = null;
+                ResumeRequest resumeRequest = null;
+                List<OfferReply> currentOffers = null;
 
-                    try {
-                        Gson gson = new Gson();
-                        String json = (String)((ObjectMessage) message).getObject();
-                        offerReply = gson.fromJson(json, OfferReply.class);
-                        messageId = message.getJMSCorrelationID();
-                        resumeRequest = resumeRequestBiMap.get(messageId);
-                        currentOffers = offerReplies.get(messageId);
+                try {
+                    Gson gson = new Gson();
+                    String json = (String)((ObjectMessage) message).getObject();
+                    offerReply = gson.fromJson(json, OfferReply.class);
+                    messageId = message.getJMSCorrelationID();
+                    resumeRequest = resumeRequestBiMap.get(messageId);
+                    currentOffers = offerReplies.get(messageId);
 
-                        if(currentOffers == null) {
-                            currentOffers = new ArrayList<>();
-                        }
-
-                        currentOffers.add(offerReply);
-                        offerReplies.put(messageId, currentOffers);
-                    } catch (JMSException e) {
-                        e.printStackTrace();
+                    if(currentOffers == null) {
+                        currentOffers = new ArrayList<>();
                     }
 
-                    onOfferReplyArrived(resumeRequest, offerReply);
+                    currentOffers.add(offerReply);
+                    offerReplies.put(messageId, currentOffers);
+                } catch (JMSException e) {
+                    e.printStackTrace();
                 }
+
+                onOfferReplyArrived(resumeRequest, offerReply);
             });
         } catch (JMSException e) {
             e.printStackTrace();
@@ -114,32 +110,36 @@ public abstract class ApplicationGateway {
 
     public List<String> acceptedCompanies(OfferRequest offerRequest) {
         BiMap<String, String> companies = HashBiMap.create();
-        companies.put("google", "#{sector} = IT");
-        companies.put("microsoft", "#{sector} = IT");
-        companies.put("mcdonalds", "#{sector} = horeca");
-        companies.put("cleaning", "#{sector} = cleaning");
+        companies.put("google", "#{sector} = IT1");
+//        companies.put("microsoft", "#{sector} = IT");
+//        companies.put("mcdonalds", "#{sector} = horeca");
+//        companies.put("cleaning", "#{sector} = cleaning");
 
-        Evaluator evaluator = new Evaluator();
-        evaluator.putVariable("sector", offerRequest.getSector());
+//        Evaluator evaluator = new Evaluator();
+//        evaluator.putVariable("sector", offerRequest.getSector());
 
         List<String> acceptedCompanies = new ArrayList<>();
+        acceptedCompanies.add("google");
+//        acceptedCompanies.add("microsoft");
+//        acceptedCompanies.add("mcdonalds");
+//        acceptedCompanies.add("cleaning");
 
-        String[] keys = (String[])companies.keySet().toArray();
-
-        try{
-            String result;
-            for(String key : keys) {
-                String entry = companies.get(key);
-
-                result = evaluator.evaluate(entry);
-//                if(result.equals("1.0")) {
-//                    acceptedCompanies.add(key);
-//                }
-                acceptedCompanies.add(key);
-            }
-        } catch (EvaluationException e) {
-            e.printStackTrace();
-        }
+//        String[] keys = (String[])companies.keySet().toArray();
+//
+//        try{
+//            String result;
+//            for(String key : keys) {
+//                String entry = companies.get(key);
+//
+////                result = evaluator.evaluate(entry);
+////                if(result.equals("1.0")) {
+////                    acceptedCompanies.add(key);
+////                }
+//                acceptedCompanies.add(key);
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
         return acceptedCompanies;
     }

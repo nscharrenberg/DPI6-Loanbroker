@@ -1,6 +1,8 @@
 package com.nscharrenberg.elect.broker.domain;
 
-public class ListLine {
+import java.io.Serializable;
+
+public class ListLine implements Serializable {
     private ResumeRequest resumeRequest;
     private OfferRequest offerRequest;
     private OfferReply offerReply;

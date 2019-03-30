@@ -58,6 +58,7 @@ public class Controller {
                 RequestReply<ResumeRequest, ResumeReply> rr = getRequestReply(requestReply.getRequest());
                 if (rr != null) {
                     rr.setReply(requestReply.getReply());
+                    messageList.refresh();
                 }
             }
         };
@@ -76,6 +77,7 @@ public class Controller {
         String messageId = applicationGateway.sendResumeRequest(resumeRequest);
         RequestReply<ResumeRequest, ResumeReply> requestReply = applicationGateway.getRequestReplyBiMap().get(messageId);
         observableList.add(requestReply);
+        messageList.refresh();
     }
 
     private String getTextFromFxmlTextField(TextField textField) {
