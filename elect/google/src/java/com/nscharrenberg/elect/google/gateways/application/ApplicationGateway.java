@@ -23,7 +23,7 @@ public abstract class ApplicationGateway {
         this.sender = new MessageSenderGateway();
         this.receiver = new MessageReceiverGateway();
 
-        MessageConsumer messageConsumer = receiver.consume(QueueName.OFFER_JOB_REQUEST);
+        MessageConsumer messageConsumer = receiver.consume(String.format("%s_%s", QueueName.OFFER_JOB_REQUEST, "google"));
 
         try {
             messageConsumer.setMessageListener(message -> {

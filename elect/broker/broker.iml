@@ -54,6 +54,6 @@
     <orderEntry type="library" name="Maven: com.google.j2objc:j2objc-annotations:1.1" level="project" />
     <orderEntry type="library" name="Maven: org.codehaus.mojo:animal-sniffer-annotations:1.17" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.8.5" level="project" />
-    <orderEntry type="library" name="Maven: net.sourceforge.jeval:jeval:0.9.4" level="project" />
+    <orderEntry type="library" name="Maven: com.udojava:EvalEx:2.1" level="project" />
   </component>
 </module>

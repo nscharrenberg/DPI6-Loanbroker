@@ -29,7 +29,7 @@ public class MessageConnectionGateway {
         props.setProperty(Context.PROVIDER_URL, "tcp://localhost:61616");
         props.put(String.format("queue.%s", QueueName.SEEK_JOB_REQUEST), QueueName.SEEK_JOB_REQUEST);
         props.put(String.format("queue.%s", QueueName.SEEK_JOB_REPLY), QueueName.SEEK_JOB_REPLY);
-        props.put(String.format("queue.%s", QueueName.OFFER_JOB_REQUEST), QueueName.OFFER_JOB_REQUEST);
+        props.put(String.format("queue.%s_%s", QueueName.OFFER_JOB_REQUEST, "google"), String.format("%s_%s", QueueName.OFFER_JOB_REQUEST, "google"));
         props.put(String.format("queue.%s", QueueName.OFFER_JOB_REPLY), QueueName.OFFER_JOB_REPLY);
 
         try {

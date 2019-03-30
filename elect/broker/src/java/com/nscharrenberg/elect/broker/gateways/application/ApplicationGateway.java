@@ -3,16 +3,18 @@ package com.nscharrenberg.elect.broker.gateways.application;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.gson.Gson;
+import com.nscharrenberg.elect.broker.data.CompanyList;
 import com.nscharrenberg.elect.broker.domain.OfferReply;
 import com.nscharrenberg.elect.broker.domain.OfferRequest;
 import com.nscharrenberg.elect.broker.domain.ResumeReply;
 import com.nscharrenberg.elect.broker.domain.ResumeRequest;
 import com.nscharrenberg.elect.broker.gateways.messaging.MessageReceiverGateway;
 import com.nscharrenberg.elect.broker.gateways.messaging.MessageSenderGateway;
-import net.sourceforge.jeval.EvaluationException;
-import net.sourceforge.jeval.Evaluator;
+import com.udojava.evalex.AbstractLazyFunction;
+import com.udojava.evalex.Expression;
 
 import javax.jms.*;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -100,46 +102,58 @@ public abstract class ApplicationGateway {
     }
 
     public void sendOfferRequeest(OfferRequest offerRequest, ResumeRequest resumeRequest) {
-        List<String> sendTo = acceptedCompanies(offerRequest);
+        List<String> sendTo = evaluateSector(offerRequest);
         String messageId = resumeRequestBiMap.inverse().get(resumeRequest);
 
         for(String company : sendTo) {
-            sender.produce(String.format("%s", QueueName.OFFER_JOB_REQUEST), offerRequest, messageId);
+            sender.produce(String.format("%s_%s", QueueName.OFFER_JOB_REQUEST, company), offerRequest, messageId);
         }
     }
 
-    public List<String> acceptedCompanies(OfferRequest offerRequest) {
-        BiMap<String, String> companies = HashBiMap.create();
-        companies.put("google", "#{sector} = IT1");
-//        companies.put("microsoft", "#{sector} = IT");
-//        companies.put("mcdonalds", "#{sector} = horeca");
-//        companies.put("cleaning", "#{sector} = cleaning");
-
-//        Evaluator evaluator = new Evaluator();
-//        evaluator.putVariable("sector", offerRequest.getSector());
-
+    private List<String> evaluateSector(OfferRequest request) {
         List<String> acceptedCompanies = new ArrayList<>();
-        acceptedCompanies.add("google");
-//        acceptedCompanies.add("microsoft");
-//        acceptedCompanies.add("mcdonalds");
-//        acceptedCompanies.add("cleaning");
 
-//        String[] keys = (String[])companies.keySet().toArray();
-//
-//        try{
-//            String result;
-//            for(String key : keys) {
-//                String entry = companies.get(key);
-//
-////                result = evaluator.evaluate(entry);
-////                if(result.equals("1.0")) {
-////                    acceptedCompanies.add(key);
-////                }
-//                acceptedCompanies.add(key);
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+        CompanyList.stream().forEach((c) -> {
+            Expression e = new Expression(c.getCriteria());
+            e.addLazyFunction(new AbstractLazyFunction("STREQ", 1) {
+                private Expression.LazyNumber ZERO = new Expression.LazyNumber() {
+                    @Override
+                    public BigDecimal eval() {
+                        return BigDecimal.ZERO;
+                    }
+
+                    @Override
+                    public String getString() {
+                        return "0";
+                    }
+                };
+
+                private Expression.LazyNumber ONE = new Expression.LazyNumber() {
+                    @Override
+                    public BigDecimal eval() {
+                        return BigDecimal.ONE;
+                    }
+
+                    @Override
+                    public String getString() {
+                        return "1";
+                    }
+                };
+
+                @Override
+                public Expression.LazyNumber lazyEval(List<Expression.LazyNumber> list) {
+                    if(request.getSector().equals(list.get(0).getString())) {
+                        return ONE;
+                    }
+
+                    return ZERO;
+                }
+            });
+
+           if(e.eval().equals(BigDecimal.ONE)) {
+                acceptedCompanies.add(c.getName());
+           }
+        });
 
         return acceptedCompanies;
     }
