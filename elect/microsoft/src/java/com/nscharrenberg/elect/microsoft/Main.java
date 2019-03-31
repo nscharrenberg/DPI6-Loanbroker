@@ -1,4 +1,4 @@
-package com.nscharrenberg.elect.google;
+package com.nscharrenberg.elect.microsoft;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -11,7 +11,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("/fxml/home.fxml"));
-        primaryStage.setTitle("Google Elect - Make an offer");
+        primaryStage.setTitle("Microsoft Elect - Make an offer");
         primaryStage.setScene(new Scene(root, 1280, 720));
         primaryStage.show();
     }
