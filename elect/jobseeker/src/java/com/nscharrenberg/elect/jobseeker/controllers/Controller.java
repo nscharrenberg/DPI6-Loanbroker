@@ -30,7 +30,7 @@ public class Controller {
     private TextField emailTxt;
 
     @FXML
-    private TextField sectorTxt;
+    private ComboBox<String> sectorTxt;
 
     @FXML
     private TextField regionTxt;
@@ -45,9 +45,12 @@ public class Controller {
     private ListView<RequestReplyList> messageList;
 
     private ObservableList<RequestReplyList> observableList;
+    private ObservableList<String> sectorList;
 
     public Controller() {
         observableList = FXCollections.observableArrayList();
+        sectorList = FXCollections.observableArrayList("IT", "HORECA", "CLEANING", "LOGISTIEK");
+        sectorTxt = new ComboBox<>(sectorList);
 
         observableList.addListener((ListChangeListener<RequestReplyList>) c -> {
             messageList.setItems(null);
@@ -117,7 +120,7 @@ public class Controller {
         resumeRequest.setFirstName(getTextFromFxmlTextField(firstnameTxt));
         resumeRequest.setLastName(getTextFromFxmlTextField(lastnameTxt));
         resumeRequest.setRegion(getTextFromFxmlTextField(regionTxt));
-        resumeRequest.setSector(getTextFromFxmlTextField(sectorTxt));
+        resumeRequest.setSector(sectorTxt.getValue());
         resumeRequest.setSkills(getTextFromFxmlTextField(skillTxt));
 
         String messageId = applicationGateway.sendResumeRequest(resumeRequest);
