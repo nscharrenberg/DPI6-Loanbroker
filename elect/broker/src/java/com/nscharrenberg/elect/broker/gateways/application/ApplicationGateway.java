@@ -33,13 +33,17 @@ public abstract class ApplicationGateway {
         receiveOfferReply();
     }
 
+    /**
+     * A MessageListener to listen to resume's from clients.
+     * When a message from a client is received it'll convert this into the appropriate object so the resume can be send to companies in the hopes to receive offers.
+     */
     private void receiveResumeRequest() {
         MessageConsumer messageConsumer = receiver.consume(QueueName.SEEK_JOB_REQUEST);
 
         try {
             messageConsumer.setMessageListener(message -> {
                 ResumeRequest resumeRequest = null;
-                String messageId = null;
+                String messageId;
 
                 try {
                     Gson gson = new Gson();
@@ -62,15 +66,19 @@ public abstract class ApplicationGateway {
         }
     }
 
+    /**
+     * A MessageListener to listen to offers from companies.
+     * When a message from a company is received it'll convert this into the appropriate objects so an offer can be send back to the client.
+     */
     private void receiveOfferReply() {
         MessageConsumer messageConsumer = receiver.consume(QueueName.OFFER_JOB_REPLY);
 
         try {
             messageConsumer.setMessageListener(message -> {
                 OfferReply offerReply = null;
-                String messageId = null;
+                String messageId;
                 ResumeRequest resumeRequest = null;
-                List<OfferReply> currentOffers = null;
+                List<OfferReply> currentOffers;
 
                 try {
                     Gson gson = new Gson();
@@ -97,11 +105,22 @@ public abstract class ApplicationGateway {
         }
     }
 
+    /**
+     * Send a an offer to the client's resume.
+     * @param resumeReply - the offer
+     * @param resumeRequest - the original resume
+     */
     public void sendResumeReply(ResumeReply resumeReply, ResumeRequest resumeRequest) {
         sender.produce(QueueName.SEEK_JOB_REPLY, resumeReply, resumeRequestBiMap.inverse().get(resumeRequest));
     }
 
-    public void sendOfferRequeest(OfferRequest offerRequest, ResumeRequest resumeRequest) {
+    /**
+     * Send a request for an offer to the companies.
+     * Here the list of acceptedCompanies from the Message Filter are used to send the messages.
+     * @param offerRequest
+     * @param resumeRequest
+     */
+    public void sendOfferRequest(OfferRequest offerRequest, ResumeRequest resumeRequest) {
         List<String> sendTo = evaluateSector(offerRequest);
         String messageId = resumeRequestBiMap.inverse().get(resumeRequest);
 
@@ -110,6 +129,13 @@ public abstract class ApplicationGateway {
         }
     }
 
+    /**
+     * Message Filter
+     * Messages are being filtered by certain criteria that each company has.
+     * If the message meets the companies criteria, the message will be send to those companies.
+     * @param request
+     * @return a list of all companies that are potentially interested into the message.
+     */
     private List<String> evaluateSector(OfferRequest request) {
         List<String> acceptedCompanies = new ArrayList<>();
 

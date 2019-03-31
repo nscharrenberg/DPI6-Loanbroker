@@ -4,11 +4,11 @@ import com.nscharrenberg.elect.jobseeker.domain.ResumeReply;
 import com.nscharrenberg.elect.jobseeker.domain.ResumeRequest;
 import com.nscharrenberg.elect.jobseeker.gateways.application.ApplicationGateway;
 import com.nscharrenberg.elect.jobseeker.gateways.messaging.requestreply.RequestReply;
+import com.nscharrenberg.elect.jobseeker.gateways.messaging.requestreply.RequestReplyList;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
@@ -42,14 +42,14 @@ public class Controller {
     private Button sendBtn;
 
     @FXML
-    private ListView<RequestReply<ResumeRequest, ResumeReply>> messageList;
+    private ListView<RequestReplyList> messageList;
 
-    private ObservableList<RequestReply<ResumeRequest, ResumeReply>> observableList;
+    private ObservableList<RequestReplyList> observableList;
 
     public Controller() {
         observableList = FXCollections.observableArrayList();
 
-        observableList.addListener((ListChangeListener<RequestReply<ResumeRequest, ResumeReply>>) c -> {
+        observableList.addListener((ListChangeListener<RequestReplyList>) c -> {
             messageList.setItems(null);
             messageList.setItems(observableList);
         });
@@ -57,10 +57,10 @@ public class Controller {
 
         applicationGateway = new ApplicationGateway() {
             @Override
-            public void onReplyArrived(RequestReply<ResumeRequest, ResumeReply> requestReply) {
-                RequestReply<ResumeRequest, ResumeReply> rr = getRequestReply(requestReply.getRequest());
+            public void onReplyArrived(RequestReply<ResumeRequest, ResumeReply> RequestReplyList) {
+                RequestReplyList rr = getRequestReply(RequestReplyList.getRequest());
                 if (rr != null) {
-                    rr.setReply(requestReply.getReply());
+                    rr.addReply(RequestReplyList.getReply());
                     messageList.refresh();
                 }
             }
@@ -72,8 +72,8 @@ public class Controller {
         if(event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("View Offer Information");
-            RequestReply<ResumeRequest, ResumeReply> rr = messageList.getSelectionModel().getSelectedItem();
-            alert.setHeaderText(rr.getReply() == null ? "Awaiting Offer" : "Offer received");
+            RequestReplyList rr = messageList.getSelectionModel().getSelectedItem();
+            alert.setHeaderText(rr.getReply().size() > 0 ? "Offer received" : "Awaiting Offer");
             alert.setContentText(String.format(
                     "Name %s %s \n Email: %s \n Sector: %s \n Region: %s \n Skills: %s",
                     rr.getRequest().getFirstName(), rr.getRequest().getLastName(), rr.getRequest().getEmail(), rr.getRequest().getSector(), rr.getRequest().getRegion(), rr.getRequest().getSector()));
@@ -81,11 +81,12 @@ public class Controller {
             Label label = new Label("Offer:");
             TextArea textArea;
             if(rr.getReply() != null) {
-                textArea = new TextArea(String.format(
-                        "Company: %s \n Function: %s \n Salary: %s \n Duration: %s \n contact email: %s \n contact person: %s \n function Description: %s",
-                        rr.getReply().getCompanyId(), rr.getReply().getFunctionTitle(), rr.getReply().getSalary(), rr.getReply().getDuration(), rr.getReply().getContactEmail(), rr.getReply().getContactPersonName(), rr.getReply().getFunctionDescription()
+                textArea = new TextArea();
 
-                ));
+                rr.getReply().forEach(r -> textArea.appendText(String.format(
+                        "Company: %s \n Function: %s \n Salary: %s \n Duration: %s \n contact email: %s \n contact person: %s \n function Description: %s \n \n ---- \n \n",
+                        r.getCompanyId(), r.getFunctionTitle(), r.getSalary(), r.getDuration(), r.getContactEmail(), r.getContactPersonName(), r.getFunctionDescription()
+                )));
             } else {
                 textArea = new TextArea("No offer received yet!");
             }
@@ -120,8 +121,8 @@ public class Controller {
         resumeRequest.setSkills(getTextFromFxmlTextField(skillTxt));
 
         String messageId = applicationGateway.sendResumeRequest(resumeRequest);
-        RequestReply<ResumeRequest, ResumeReply> requestReply = applicationGateway.getRequestReplyBiMap().get(messageId);
-        observableList.add(requestReply);
+        RequestReplyList RequestReplyList = applicationGateway.getRequestReplyBiMap().get(messageId);
+        observableList.add(RequestReplyList);
         messageList.refresh();
     }
 
@@ -129,8 +130,8 @@ public class Controller {
         return textField.getText();
     }
 
-    private RequestReply<ResumeRequest, ResumeReply> getRequestReply(ResumeRequest resumeRequest) {
-        for (RequestReply<ResumeRequest, ResumeReply> rr : observableList) {
+    private RequestReplyList getRequestReply(ResumeRequest resumeRequest) {
+        for (RequestReplyList rr : observableList) {
             if (rr.getRequest() == resumeRequest) {
                 return rr;
             }

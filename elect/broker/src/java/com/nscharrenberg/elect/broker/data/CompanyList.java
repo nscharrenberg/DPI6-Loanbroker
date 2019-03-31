@@ -34,6 +34,10 @@ public enum CompanyList {
         this.criteria = criteria;
     }
 
+    /**
+     * The Enum values have been converted to a stream so it's possible to iterate through them.
+     * @return a stream of CompanyList
+     */
     public static Stream<CompanyList> stream() {
         return Stream.of(CompanyList.values());
     }

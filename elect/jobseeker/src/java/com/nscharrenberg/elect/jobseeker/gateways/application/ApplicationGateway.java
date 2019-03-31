@@ -8,13 +8,14 @@ import com.nscharrenberg.elect.jobseeker.domain.ResumeRequest;
 import com.nscharrenberg.elect.jobseeker.gateways.messaging.MessageReceiverGateway;
 import com.nscharrenberg.elect.jobseeker.gateways.messaging.MessageSenderGateway;
 import com.nscharrenberg.elect.jobseeker.gateways.messaging.requestreply.RequestReply;
+import com.nscharrenberg.elect.jobseeker.gateways.messaging.requestreply.RequestReplyList;
 
 import javax.jms.*;
 
 public abstract class ApplicationGateway {
     private MessageSenderGateway sender;
 
-    private BiMap<String, RequestReply<ResumeRequest, ResumeReply>> requestReplyBiMap = HashBiMap.create();
+    private BiMap<String, RequestReplyList> requestReplyBiMap = HashBiMap.create();
 
     public ApplicationGateway() {
         this.sender = new MessageSenderGateway();
@@ -26,7 +27,8 @@ public abstract class ApplicationGateway {
             messageConsumer.setMessageListener(message -> {
                 ResumeReply resumeReply = null;
                 String messageId = null;
-                RequestReply<ResumeRequest, ResumeReply> requestReply = null;
+                RequestReplyList requestReply = null;
+                RequestReply<ResumeRequest, ResumeReply> replyArrived = null;
 
                 try {
                     Gson gson = new Gson();
@@ -35,12 +37,13 @@ public abstract class ApplicationGateway {
 
                     messageId = message.getJMSCorrelationID();
                     requestReply = requestReplyBiMap.get(messageId);
-                    requestReply.setReply(resumeReply);
+                    requestReply.addReply(resumeReply);
+                    replyArrived = new RequestReply<>(requestReply.getRequest(), resumeReply);
                 } catch (JMSException e) {
                     e.printStackTrace();
                 }
 
-                onReplyArrived(requestReply);
+                onReplyArrived(replyArrived);
             });
         } catch (JMSException e) {
             e.printStackTrace();
@@ -48,7 +51,7 @@ public abstract class ApplicationGateway {
     }
 
     public String sendResumeRequest(ResumeRequest resumeRequest) {
-        RequestReply<ResumeRequest, ResumeReply> requestReply = new RequestReply<>(resumeRequest, null);
+        RequestReplyList requestReply = new RequestReplyList(resumeRequest, null);
         String messageId = sender.produce(QueueName.SEEK_JOB_REQUEST, resumeRequest, null);
 
         if(messageId != null) {
@@ -58,7 +61,7 @@ public abstract class ApplicationGateway {
         return messageId;
     }
 
-    public BiMap<String, RequestReply<ResumeRequest, ResumeReply>> getRequestReplyBiMap() {
+    public BiMap<String, RequestReplyList> getRequestReplyBiMap() {
         return requestReplyBiMap;
     }
 

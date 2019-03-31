@@ -10,20 +10,20 @@ import javafx.scene.control.ListView;
 
 public class Controller {
 
-    private ApplicationGateway applicationGateway;
-
     @FXML
     private ListView<ListLine> messageList;
+
+    private ApplicationGateway applicationGateway;
 
     private ObservableList<ListLine> observableList;
 
     public Controller() {
         observableList = FXCollections.observableArrayList();
 
+        // Update listview when an item is added or changed
         observableList.addListener((InvalidationListener) c -> {
             messageList.setItems(null);
             messageList.setItems(observableList);
-            System.out.println("ObservableList Listener Triggered");
         });
 
         applicationGateway = new ApplicationGateway() {
@@ -39,18 +39,29 @@ public class Controller {
                 add(resumeRequest);
                 OfferRequest offerRequest = new OfferRequest(resumeRequest.getFirstName(), resumeRequest.getLastName(), resumeRequest.getSector(), resumeRequest.getRegion(), resumeRequest.getSkills());
                 add(resumeRequest, offerRequest);
-                applicationGateway.sendOfferRequeest(offerRequest, resumeRequest);
+                applicationGateway.sendOfferRequest(offerRequest, resumeRequest);
                 messageList.refresh();
             }
         };
     }
 
-    public void add(ResumeRequest resumeRequest) {
+    /**
+     * Add a new Request to the listview
+     * This shows that the resume is received by the broker.
+     * @param resumeRequest
+     */
+    private void add(ResumeRequest resumeRequest) {
         observableList.add(new ListLine(resumeRequest));
         messageList.refresh();
     }
 
-    public void add(ResumeRequest resumeRequest, OfferRequest offerRequest) {
+    /**
+     * Update the Resume and add a request for an offer.
+     * This shows that the resume is forwarded to the appropriate companies.
+     * @param resumeRequest
+     * @param offerRequest
+     */
+    private void add(ResumeRequest resumeRequest, OfferRequest offerRequest) {
         ListLine rr = getRequestReply(resumeRequest);
 
         if(rr != null && offerRequest != null) {
@@ -59,7 +70,13 @@ public class Controller {
         }
     }
 
-    public void add(ResumeRequest resumeRequest, OfferReply offerReply) {
+    /**
+     * Update the Resume and add an offer.
+     * This shows that an offer is received from the companies.
+     * @param resumeRequest
+     * @param offerReply
+     */
+    private void add(ResumeRequest resumeRequest, OfferReply offerReply) {
         ListLine rr = getRequestReply(resumeRequest);
 
         if(rr != null && offerReply != null) {
@@ -68,6 +85,11 @@ public class Controller {
         }
     }
 
+    /**
+     * Get the correct ListLine from a resume.
+     * @param resumeRequest
+     * @return
+     */
     private ListLine getRequestReply(ResumeRequest resumeRequest) {
         for (ListLine rr : observableList) {
             if (rr.getResumeRequest() == resumeRequest) {

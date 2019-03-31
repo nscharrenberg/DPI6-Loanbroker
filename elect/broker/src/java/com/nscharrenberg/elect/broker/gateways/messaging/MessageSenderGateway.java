@@ -33,7 +33,7 @@ public class MessageSenderGateway extends MessageConnectionGateway {
         }
     }
 
-    public String generateGson(Serializable obj) {
+    private String generateGson(Serializable obj) {
         Gson gson = new Gson();
         return gson.toJson(obj);
     }

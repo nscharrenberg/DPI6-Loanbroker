@@ -56,24 +56,12 @@ public class MessageConnectionGateway {
         return connection;
     }
 
-    public void setConnection(Connection connection) {
-        this.connection = connection;
-    }
-
     public Session getSession() {
         return session;
     }
 
-    public void setSession(Session session) {
-        this.session = session;
-    }
-
     public Context getJndiContext() {
         return jndiContext;
-    }
-
-    public void setJndiContext(Context jndiContext) {
-        this.jndiContext = jndiContext;
     }
 
     public Destination getDestination() {
