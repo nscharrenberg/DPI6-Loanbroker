@@ -439,15 +439,15 @@
       <workItem from="1554044342992" duration="2552000" />
       <workItem from="1554878417792" duration="7961000" />
       <workItem from="1554892972068" duration="1296000" />
-      <workItem from="1554914544938" duration="655000" />
+      <workItem from="1554914544938" duration="1972000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="40356000" />
+    <option name="totallyTimeSpent" value="41673000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-1928" y="-8" width="1936" height="1056" extended-state="7" />
+    <frame x="-1928" y="-8" width="1936" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info anchor="right" id="Palette" order="3" />
@@ -460,7 +460,7 @@
       <window_info anchor="right" id="Maven Projects" order="3" weight="0.17833698" />
       <window_info anchor="bottom" id="Database Changes" order="8" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="7" show_stripe_button="false" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.5424837" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.5424837" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.46514162" />
       <window_info id="Capture Tool" order="2" />
       <window_info id="Designer" order="2" />
@@ -534,7 +534,7 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
-          <url />
+          <url>file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/microsoft/shared/MessageReader.java</url>
           <line>27</line>
           <properties />
           <option name="timeStamp" value="4" />
