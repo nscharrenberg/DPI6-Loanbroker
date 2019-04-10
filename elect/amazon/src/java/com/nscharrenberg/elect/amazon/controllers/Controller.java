@@ -1,9 +1,12 @@
 package com.nscharrenberg.elect.amazon.controllers;
 
+import com.google.common.collect.HashBiMap;
 import com.nscharrenberg.elect.amazon.domain.OfferReply;
 import com.nscharrenberg.elect.amazon.domain.OfferRequest;
 import com.nscharrenberg.elect.amazon.gateways.application.ApplicationGateway;
 import com.nscharrenberg.elect.amazon.gateways.messaging.requestreply.RequestReply;
+import com.nscharrenberg.elect.amazon.shared.MessageReader;
+import com.nscharrenberg.elect.amazon.shared.MessageWriter;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -125,12 +128,25 @@ public class Controller implements Initializable {
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        populateMessageList();
+
         applicationGateway = new ApplicationGateway() {
             @Override
-            public void onOfferRequestArrived(OfferRequest offerRequest) {
+            public void onOfferRequestArrived(String correlationId, OfferRequest offerRequest) {
                 observableList.add(new RequestReply<>(offerRequest, null));
                 messageList.refresh();
+
+                MessageWriter.add(correlationId, offerRequest);
             }
         };
+    }
+
+    private void populateMessageList() {
+        HashBiMap<String, OfferRequest> requests = MessageReader.getRequests();
+
+        requests.forEach((c, r) -> {
+            observableList.add(new RequestReply<>(r, null));
+            messageList.refresh();
+        });
     }
 }

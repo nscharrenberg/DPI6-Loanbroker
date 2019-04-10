@@ -1,11 +1,12 @@
 package com.nscharrenberg.elect.google.controllers;
 
+import com.google.common.collect.HashBiMap;
 import com.nscharrenberg.elect.google.domain.OfferReply;
 import com.nscharrenberg.elect.google.domain.OfferRequest;
-import com.nscharrenberg.elect.google.domain.ResumeReply;
-import com.nscharrenberg.elect.google.domain.ResumeRequest;
 import com.nscharrenberg.elect.google.gateways.application.ApplicationGateway;
 import com.nscharrenberg.elect.google.gateways.messaging.requestreply.RequestReply;
+import com.nscharrenberg.elect.google.shared.MessageReader;
+import com.nscharrenberg.elect.google.shared.MessageWriter;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -127,12 +128,25 @@ public class Controller implements Initializable {
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        populateMessageList();
+
         applicationGateway = new ApplicationGateway() {
             @Override
-            public void onOfferRequestArrived(OfferRequest offerRequest) {
+            public void onOfferRequestArrived(String correlationId, OfferRequest offerRequest) {
                 observableList.add(new RequestReply<>(offerRequest, null));
                 messageList.refresh();
+
+                MessageWriter.add(correlationId, offerRequest);
             }
         };
+    }
+
+    private void populateMessageList() {
+        HashBiMap<String, OfferRequest> requests = MessageReader.getRequests();
+
+        requests.forEach((c, r) -> {
+            observableList.add(new RequestReply<>(r, null));
+            messageList.refresh();
+        });
     }
 }

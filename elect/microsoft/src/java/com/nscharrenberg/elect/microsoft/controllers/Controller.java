@@ -1,9 +1,12 @@
 package com.nscharrenberg.elect.microsoft.controllers;
 
+import com.google.common.collect.HashBiMap;
 import com.nscharrenberg.elect.microsoft.domain.OfferReply;
 import com.nscharrenberg.elect.microsoft.domain.OfferRequest;
 import com.nscharrenberg.elect.microsoft.gateways.application.ApplicationGateway;
 import com.nscharrenberg.elect.microsoft.gateways.messaging.requestreply.RequestReply;
+import com.nscharrenberg.elect.microsoft.shared.MessageReader;
+import com.nscharrenberg.elect.microsoft.shared.MessageWriter;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -14,8 +17,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
-import javax.annotation.PostConstruct;
-import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;
@@ -73,7 +74,7 @@ public class Controller implements Initializable {
             offerReply.setDuration(getTextFromFxmlTextField(durationTxt));
             offerReply.setFunctionDescription(descriptionTxt.getText());
 
-            if(rr != null && offerReply != null) {
+            if (rr != null && offerReply != null) {
                 rr.setReply(offerReply);
                 applicationGateway.sendOfferReply(rr);
                 messageList.refresh();
@@ -127,12 +128,25 @@ public class Controller implements Initializable {
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        populateMessageList();
+
         applicationGateway = new ApplicationGateway() {
             @Override
-            public void onOfferRequestArrived(OfferRequest offerRequest) {
+            public void onOfferRequestArrived(String correlationId, OfferRequest offerRequest) {
                 observableList.add(new RequestReply<>(offerRequest, null));
                 messageList.refresh();
+
+                MessageWriter.add(correlationId, offerRequest);
             }
         };
+    }
+
+    private void populateMessageList() {
+        HashBiMap<String, OfferRequest> requests = MessageReader.getRequests();
+
+        requests.forEach((c, r) -> {
+            observableList.add(new RequestReply<>(r, null));
+            messageList.refresh();
+        });
     }
 }

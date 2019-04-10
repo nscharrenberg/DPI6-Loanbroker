@@ -39,7 +39,7 @@ public abstract class ApplicationGateway {
                     e.printStackTrace();
                 }
 
-                onOfferRequestArrived(offerRequest);
+                onOfferRequestArrived(messageId, offerRequest);
             });
         } catch (JMSException e) {
             e.printStackTrace();
@@ -51,5 +51,5 @@ public abstract class ApplicationGateway {
         sender.produce(QueueName.OFFER_JOB_REPLY, requestReply.getReply(), correlationId);
     }
 
-    public abstract void onOfferRequestArrived(OfferRequest offerRequest);
+    public abstract void onOfferRequestArrived(String correlationId, OfferRequest offerRequest);
 }

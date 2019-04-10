@@ -5,8 +5,6 @@ import com.google.common.collect.HashBiMap;
 import com.google.gson.Gson;
 import com.nscharrenberg.elect.google.domain.OfferReply;
 import com.nscharrenberg.elect.google.domain.OfferRequest;
-import com.nscharrenberg.elect.google.domain.ResumeReply;
-import com.nscharrenberg.elect.google.domain.ResumeRequest;
 import com.nscharrenberg.elect.google.gateways.messaging.MessageReceiverGateway;
 import com.nscharrenberg.elect.google.gateways.messaging.MessageSenderGateway;
 import com.nscharrenberg.elect.google.gateways.messaging.requestreply.RequestReply;
@@ -31,7 +29,6 @@ public abstract class ApplicationGateway {
                 String messageId = null;
 
                 try {
-                    System.out.println("Google received!");
                     Gson gson = new Gson();
                     String json = (String) ((ObjectMessage) message).getObject();
                     offerRequest = gson.fromJson(json, OfferRequest.class);
@@ -42,7 +39,7 @@ public abstract class ApplicationGateway {
                     e.printStackTrace();
                 }
 
-                onOfferRequestArrived(offerRequest);
+                onOfferRequestArrived(messageId, offerRequest);
             });
         } catch (JMSException e) {
             e.printStackTrace();
@@ -54,5 +51,5 @@ public abstract class ApplicationGateway {
         sender.produce(QueueName.OFFER_JOB_REPLY, requestReply.getReply(), correlationId);
     }
 
-    public abstract void onOfferRequestArrived(OfferRequest offerRequest);
+    public abstract void onOfferRequestArrived(String correlationId, OfferRequest offerRequest);
 }

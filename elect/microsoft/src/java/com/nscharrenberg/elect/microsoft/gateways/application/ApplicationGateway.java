@@ -24,26 +24,22 @@ public abstract class ApplicationGateway {
         MessageConsumer messageConsumer = receiver.consume(String.format("%s_%s", QueueName.OFFER_JOB_REQUEST, "microsoft"));
 
         try {
-            messageConsumer.setMessageListener(new MessageListener() {
-                @Override
-                public void onMessage(Message message) {
-                    OfferRequest offerRequest = null;
-                    String messageId = null;
+            messageConsumer.setMessageListener(message -> {
+                OfferRequest offerRequest = null;
+                String messageId = null;
 
-                    try {
-                        System.out.println("Google received!");
-                        Gson gson = new Gson();
-                        String json = (String) ((ObjectMessage) message).getObject();
-                        offerRequest = gson.fromJson(json, OfferRequest.class);
-                        messageId = message.getJMSCorrelationID();
+                try {
+                    Gson gson = new Gson();
+                    String json = (String) ((ObjectMessage) message).getObject();
+                    offerRequest = gson.fromJson(json, OfferRequest.class);
+                    messageId = message.getJMSCorrelationID();
 
-                        offerRequestStringBiMap.put(offerRequest, messageId);
-                    } catch (JMSException e) {
-                        e.printStackTrace();
-                    }
-
-                    onOfferRequestArrived(offerRequest);
+                    offerRequestStringBiMap.put(offerRequest, messageId);
+                } catch (JMSException e) {
+                    e.printStackTrace();
                 }
+
+                onOfferRequestArrived(messageId, offerRequest);
             });
         } catch (JMSException e) {
             e.printStackTrace();
@@ -55,5 +51,5 @@ public abstract class ApplicationGateway {
         sender.produce(QueueName.OFFER_JOB_REPLY, requestReply.getReply(), correlationId);
     }
 
-    public abstract void onOfferRequestArrived(OfferRequest offerRequest);
+    public abstract void onOfferRequestArrived(String correlationId, OfferRequest offerRequest);
 }

@@ -1,7 +1,6 @@
 package com.nscharrenberg.elect.google.gateways.messaging;
 
 import com.nscharrenberg.elect.google.gateways.application.QueueName;
-import org.apache.activemq.ActiveMQConnectionFactory;
 
 import javax.jms.*;
 import javax.naming.Context;
@@ -35,8 +34,7 @@ public class MessageConnectionGateway {
 
         try {
             this.jndiContext = new InitialContext(props);
-            ActiveMQConnectionFactory factory = (ActiveMQConnectionFactory) jndiContext.lookup("ConnectionFactory");
-            factory.setTrustAllPackages(true);
+            ConnectionFactory factory = (ConnectionFactory) jndiContext.lookup("ConnectionFactory");
             connection = factory.createConnection();
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
         } catch (NamingException | JMSException e) {
