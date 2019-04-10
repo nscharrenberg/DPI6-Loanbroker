@@ -8,7 +8,8 @@ public enum CompanyList {
     MCDONALDS("mcdonalds", "STREQ(\"HORECA\")"),
     CLEANING("cleaning", "STREQ(\"CLEANING\")"),
     AMAZON("amazon", "STREQ(\"LOGISTIEK\")"),
-    AH("albertheijn", "STREQ(\"LOGISTIEK\")");
+    AH("albertheijn", "STREQ(\"LOGISTIEK\")"),
+    SODEXO("sodexo", "STREQ(\"HORECA\")");
 
     private String name;
     private String criteria;

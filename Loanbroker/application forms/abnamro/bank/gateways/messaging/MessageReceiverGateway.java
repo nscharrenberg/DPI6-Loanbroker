@@ -24,8 +24,4 @@ public class MessageReceiverGateway extends MessageConnectionGateway {
             return consumer;
         }
     }
-
-    public void listen(MessageListener listener) throws JMSException {
-        this.consumer.setMessageListener(listener);
-    }
 }

@@ -9,14 +9,17 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URL;
+import java.util.ResourceBundle;
 
-public class Controller {
+public class Controller implements Initializable {
 
     private ApplicationGateway applicationGateway;
 
@@ -53,15 +56,6 @@ public class Controller {
             messageList.setItems(null);
             messageList.setItems(observableList);
         });
-
-
-        applicationGateway = new ApplicationGateway() {
-            @Override
-            public void onOfferRequestArrived(OfferRequest offerRequest) {
-               observableList.add(new RequestReply<>(offerRequest, null));
-                messageList.refresh();
-            }
-        };
     }
 
     @FXML
@@ -121,4 +115,22 @@ public class Controller {
         return textField.getText();
     }
 
+    /**
+     * Called to initialize a controller after its root element has been
+     * completely processed.
+     *
+     * @param location  The location used to resolve relative paths for the root object, or
+     *                  <tt>null</tt> if the location is not known.
+     * @param resources The resources used to localize the root object, or <tt>null</tt> if
+     */
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        applicationGateway = new ApplicationGateway() {
+            @Override
+            public void onOfferRequestArrived(OfferRequest offerRequest) {
+                observableList.add(new RequestReply<>(offerRequest, null));
+                messageList.refresh();
+            }
+        };
+    }
 }

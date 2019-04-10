@@ -2,10 +2,7 @@ package com.nscharrenberg.elect.broker.gateways.messaging;
 
 import com.google.gson.Gson;
 
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageProducer;
+import javax.jms.*;
 import javax.naming.NamingException;
 import java.io.Serializable;
 
@@ -19,6 +16,7 @@ public class MessageSenderGateway extends MessageConnectionGateway {
         try {
             setDestination((Destination) getJndiContext().lookup(queue));
             this.producer = this.getSession().createProducer(this.getDestination());
+            this.producer.setDeliveryMode(DeliveryMode.PERSISTENT);
             Message msg = this.getSession().createObjectMessage(generateGson(obj));
 
             if(messageId != null) {
