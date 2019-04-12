@@ -13,7 +13,6 @@ public class MessageReceiverGateway extends MessageConnectionGateway {
 
     public MessageConsumer consume(String queue) {
         try {
-            //TODO: General Receive logic to receive a JMS message.
             setDestination((Destination) getJndiContext().lookup(queue));
             this.consumer = this.getSession().createConsumer(getDestination());
             this.getConnection().start();

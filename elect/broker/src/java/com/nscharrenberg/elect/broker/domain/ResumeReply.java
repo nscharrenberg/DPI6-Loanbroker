@@ -86,4 +86,37 @@ public class ResumeReply implements Serializable {
     public String toString() {
         return String.format("companyId=%s function=%s salary%s duration=%s contactemail=%s contactperson=%s functiondescription=%s", companyId, functionTitle, salary, duration, contactEmail, contactPersonName, functionDescription);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(
+                obj instanceof OfferReply &&
+                        this.getCompanyId().equals(((OfferReply) obj).getCompanyId()) &&
+                        this.getFunctionTitle().equals(((OfferReply) obj).getFunctionTitle()) &&
+                        this.getSalary() == (((OfferReply) obj).getSalary()) &&
+                        this.getDuration().equals(((OfferReply) obj).getDuration()) &&
+                        this.getContactEmail().equals(((OfferReply) obj).getContactEmail()) &&
+                        this.getContactPersonName().equals(((OfferReply) obj).getContactPersonName()) &&
+                        this.getFunctionDescription().equals(((OfferReply) obj).getFunctionDescription())
+                ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 17;
+
+        result = 31 * result + companyId.hashCode();
+        result = 31 * result + functionTitle.hashCode();
+        long salaryLong = Double.doubleToLongBits(salary);
+        result = 31 * result + (int) (salaryLong ^ (salaryLong >>> 32));
+        result = 31 * result + duration.hashCode();
+        result = 31 * result + contactEmail.hashCode();
+        result = 31 * result + contactPersonName.hashCode();
+        result = 31 * result + functionDescription.hashCode();
+        return result;
+    }
 }

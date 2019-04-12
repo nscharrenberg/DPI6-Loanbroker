@@ -31,4 +31,28 @@ public class RequestReply<REQUEST, REPLY> implements Serializable {
     public String toString() {
         return String.format("%s ---> %s",request.toString(), ((reply != null) ? reply.toString() : "awaiting reply..."));
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(reply == null) {
+            if(
+                    obj instanceof RequestReply &&
+                            request.equals(((RequestReply) obj).getRequest()) &&
+                            reply == null &&
+                            ((RequestReply) obj).getReply() == null
+                    ) {
+                return true;
+            }
+        } else {
+            if(
+                    obj instanceof RequestReply &&
+                            request.equals(((RequestReply) obj).getRequest()) &&
+                            reply.equals(((RequestReply) obj).getReply())
+                    ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

@@ -1,14 +1,20 @@
 package com.nscharrenberg.elect.broker.controllers;
 
+import com.google.common.collect.HashBiMap;
 import com.nscharrenberg.elect.broker.domain.*;
 import com.nscharrenberg.elect.broker.gateways.application.ApplicationGateway;
+import com.nscharrenberg.elect.broker.shared.MessageReader;
 import javafx.beans.InvalidationListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.ListView;
 
-public class Controller {
+import java.net.URL;
+import java.util.ResourceBundle;
+
+public class Controller implements Initializable {
 
     @FXML
     private ListView<ListLine> messageList;
@@ -25,28 +31,6 @@ public class Controller {
             messageList.setItems(null);
             messageList.setItems(observableList);
         });
-
-        applicationGateway = new ApplicationGateway() {
-            @Override
-            protected void onOfferReplyArrived(ResumeRequest resumeRequest, OfferReply offerReply) {
-                add(resumeRequest, offerReply);
-
-                //TODO: Send a ResumeReply uppon arrival of an OfferReply
-                applicationGateway.sendResumeReply(new ResumeReply(offerReply.getCompanyId(), offerReply.getFunctionTitle(), offerReply.getSalary(), offerReply.getDuration(), offerReply.getContactEmail(), offerReply.getContactPersonName(), offerReply.getFunctionDescription()), resumeRequest);
-                messageList.refresh();
-            }
-
-            @Override
-            protected void onResumeRequestArrived(ResumeRequest resumeRequest) {
-                add(resumeRequest);
-                OfferRequest offerRequest = new OfferRequest(resumeRequest.getFirstName(), resumeRequest.getLastName(), resumeRequest.getSector(), resumeRequest.getRegion(), resumeRequest.getSkills());
-                add(resumeRequest, offerRequest);
-
-                //TODO: Send an OfferRequest uppon arrival of a ResumeRequest
-                applicationGateway.sendOfferRequest(offerRequest, resumeRequest);
-                messageList.refresh();
-            }
-        };
     }
 
     /**
@@ -84,7 +68,7 @@ public class Controller {
         ListLine rr = getRequestReply(resumeRequest);
 
         if(rr != null && offerReply != null) {
-            rr.setOfferReply(offerReply);
+            rr.addReply(offerReply);
             messageList.refresh();
         }
     }
@@ -102,5 +86,53 @@ public class Controller {
         }
 
         return null;
+    }
+
+    /**
+     * Repopulate all RequestReplies from the JSON file (used as in-memory database).
+     * It'll add each RequestReply back to the BiMap.
+     */
+    private void populateMessageList() {
+        //TODO: Prepopulate the list with the RequestReplies that are saved in the in-memory database.
+        HashBiMap<String, ListLine> requests = MessageReader.getRequests();
+
+        //TODO: Put these items back to the BiMap
+        requests.forEach((c, r) -> {
+            observableList.add(r);
+        });
+    }
+
+    /**
+     * Called to initialize a controller after its root element has been
+     * completely processed.
+     *
+     * @param location  The location used to resolve relative paths for the root object, or
+     *                  <tt>null</tt> if the location is not known.
+     * @param resources The resources used to localize the root object, or <tt>null</tt> if
+     */
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        populateMessageList();
+        applicationGateway = new ApplicationGateway() {
+            @Override
+            protected void onOfferReplyArrived(ListLine ll, OfferReply offerReply) {
+                add(ll.getResumeRequest(), offerReply);
+
+                //TODO: Send a ResumeReply uppon arrival of an OfferReply
+                applicationGateway.sendResumeReply(new ResumeReply(offerReply.getCompanyId(), offerReply.getFunctionTitle(), offerReply.getSalary(), offerReply.getDuration(), offerReply.getContactEmail(), offerReply.getContactPersonName(), offerReply.getFunctionDescription()), ll);
+                messageList.refresh();
+            }
+
+            @Override
+            protected void onResumeRequestArrived(ListLine ll) {
+                add(ll.getResumeRequest());
+                OfferRequest offerRequest = new OfferRequest(ll.getResumeRequest().getFirstName(), ll.getResumeRequest().getLastName(), ll.getResumeRequest().getSector(), ll.getResumeRequest().getRegion(), ll.getResumeRequest().getSkills());
+                add(ll.getResumeRequest(), offerRequest);
+
+                //TODO: Send an OfferRequest uppon arrival of a ResumeRequest
+                applicationGateway.sendOfferRequest(offerRequest, ll);
+                messageList.refresh();
+            }
+        };
     }
 }

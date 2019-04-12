@@ -132,8 +132,8 @@ public class Controller implements Initializable {
 
         applicationGateway = new ApplicationGateway() {
             @Override
-            public void onOfferRequestArrived(String correlationId, OfferRequest offerRequest) {
-                observableList.add(new RequestReply<>(offerRequest, null));
+            public void onOfferRequestArrived(String correlationId, RequestReply<OfferRequest, OfferReply> offerRequest) {
+                observableList.add(offerRequest);
                 messageList.refresh();
 
                 MessageWriter.add(correlationId, offerRequest);
@@ -142,10 +142,10 @@ public class Controller implements Initializable {
     }
 
     private void populateMessageList() {
-        HashBiMap<String, OfferRequest> requests = MessageReader.getRequests();
+        HashBiMap<String, RequestReply<OfferRequest, OfferReply>> requests = MessageReader.getRequests();
 
         requests.forEach((c, r) -> {
-            observableList.add(new RequestReply<>(r, null));
+            observableList.add(r);
             messageList.refresh();
         });
     }

@@ -2,16 +2,17 @@ package com.nscharrenberg.elect.amazon.shared;
 
 import com.google.common.collect.HashBiMap;
 import com.google.gson.Gson;
+import com.nscharrenberg.elect.amazon.domain.OfferReply;
 import com.nscharrenberg.elect.amazon.domain.OfferRequest;
+import com.nscharrenberg.elect.amazon.gateways.messaging.requestreply.RequestReply;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class MessageWriter {
-    public static void writeReplies(HashBiMap<String, OfferRequest> replies) {
+    public static void writeReplies(HashBiMap<String, RequestReply<OfferRequest, OfferReply>> replies) {
         FileOutputStream fos = null;
         ObjectOutputStream oos = null;
 
@@ -57,15 +58,29 @@ public class MessageWriter {
         }
     }
 
-    public static void add(String correlationId, OfferRequest request) {
-        HashBiMap<String, OfferRequest> requests = MessageReader.getRequests();
+    public static void add(String correlationId, RequestReply<OfferRequest, OfferReply> request) {
+        HashBiMap<String, RequestReply<OfferRequest, OfferReply>> requests = MessageReader.getRequests();
         requests.put(correlationId, request);
 
         writeReplies(requests);
     }
 
-    public static void remove(OfferRequest request) {
-        HashBiMap<String, OfferRequest> requests = MessageReader.getRequests();
+    public static void update(String correlationId, OfferReply resumeReply) {
+        HashBiMap<String, RequestReply<OfferRequest, OfferReply>> requests = MessageReader.getRequests();
+
+        RequestReply<OfferRequest, OfferReply> found = requests.get(correlationId);
+
+        if(found != null) {
+            found.setReply(resumeReply);
+            requests.remove(correlationId);
+            requests.put(correlationId, found);
+        }
+
+        writeReplies(requests);
+    }
+
+    public static void remove(RequestReply<OfferRequest, OfferReply> request) {
+        HashBiMap<String, RequestReply<OfferRequest, OfferReply>> requests = MessageReader.getRequests();
 
         requests.forEach((c, r) -> {
             if(r.equals(request)) {

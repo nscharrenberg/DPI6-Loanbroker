@@ -65,6 +65,33 @@ public class OfferRequest implements Serializable {
     @Override
     public String toString() {
         return String.format("firstname=%s lastname=%s sector=%s region=%s skills=%s", firstName, lastName, sector, region, skills);
+    }
 
+    @Override
+    public boolean equals(Object obj) {
+        if(
+                obj instanceof OfferRequest &&
+                        this.getFirstName().equals(((OfferRequest) obj).getFirstName()) &&
+                        this.getLastName().equals(((OfferRequest) obj).getLastName()) &&
+                        this.getSector().equals(((OfferRequest) obj).getSector()) &&
+                        this.getRegion().equals(((OfferRequest) obj).getRegion()) &&
+                        this.getSkills().equals(((OfferRequest) obj).getSkills())
+                ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 17;
+
+        result = 31 * result + firstName.hashCode();
+        result = 31 * result + lastName.hashCode();
+        result = 31 * result + sector.hashCode();
+        result = 31 * result + region.hashCode();
+        result = 31 * result + skills.hashCode();
+        return result;
     }
 }

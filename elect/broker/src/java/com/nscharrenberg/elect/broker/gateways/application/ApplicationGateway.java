@@ -4,12 +4,11 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.gson.Gson;
 import com.nscharrenberg.elect.broker.data.CompanyList;
-import com.nscharrenberg.elect.broker.domain.OfferReply;
-import com.nscharrenberg.elect.broker.domain.OfferRequest;
-import com.nscharrenberg.elect.broker.domain.ResumeReply;
-import com.nscharrenberg.elect.broker.domain.ResumeRequest;
+import com.nscharrenberg.elect.broker.domain.*;
 import com.nscharrenberg.elect.broker.gateways.messaging.MessageReceiverGateway;
 import com.nscharrenberg.elect.broker.gateways.messaging.MessageSenderGateway;
+import com.nscharrenberg.elect.broker.shared.MessageReader;
+import com.nscharrenberg.elect.broker.shared.MessageWriter;
 import com.udojava.evalex.AbstractLazyFunction;
 import com.udojava.evalex.Expression;
 
@@ -22,10 +21,10 @@ public abstract class ApplicationGateway {
     private MessageSenderGateway sender;
     private MessageReceiverGateway receiver;
 
-    private BiMap<String, ResumeRequest> resumeRequestBiMap = HashBiMap.create();
-    private BiMap<String, List<OfferReply>> offerReplies = HashBiMap.create();
+    private BiMap<String, ListLine> resumeRequestBiMap = HashBiMap.create();
 
     public ApplicationGateway() {
+        populateMessageList();
         this.sender = new MessageSenderGateway();
         this.receiver = new MessageReceiverGateway();
         
@@ -44,6 +43,7 @@ public abstract class ApplicationGateway {
             //TODO: MessageListener to receive a ResumeRequest no the "seekRequestQueue" queue.
             messageConsumer.setMessageListener(message -> {
                 ResumeRequest resumeRequest = null;
+                ListLine ll = null;
                 String messageId;
 
                 try {
@@ -54,12 +54,15 @@ public abstract class ApplicationGateway {
                     resumeRequest = gson.fromJson(json, ResumeRequest.class);
 
                     messageId = message.getJMSMessageID();
-                    resumeRequestBiMap.put(messageId, resumeRequest);
+                    ll = new ListLine(resumeRequest);
+                    resumeRequestBiMap.put(messageId, ll);
+
+                    MessageWriter.add(messageId, ll);
                 } catch (JMSException e) {
                     e.printStackTrace();
                 }
 
-                onResumeRequestArrived(resumeRequest);
+                onResumeRequestArrived(ll);
             });
         } catch (JMSException e) {
             e.printStackTrace();
@@ -78,8 +81,7 @@ public abstract class ApplicationGateway {
             messageConsumer.setMessageListener(message -> {
                 OfferReply offerReply = null;
                 String messageId;
-                ResumeRequest resumeRequest = null;
-                List<OfferReply> currentOffers;
+                ListLine resumeRequest = null;
 
                 try {
                     Gson gson = new Gson();
@@ -89,14 +91,8 @@ public abstract class ApplicationGateway {
                     offerReply = gson.fromJson(json, OfferReply.class);
                     messageId = message.getJMSCorrelationID();
                     resumeRequest = resumeRequestBiMap.get(messageId);
-                    currentOffers = offerReplies.get(messageId);
 
-                    if(currentOffers == null) {
-                        currentOffers = new ArrayList<>();
-                    }
-
-                    currentOffers.add(offerReply);
-                    offerReplies.put(messageId, currentOffers);
+                    resumeRequest.addReply(offerReply);
                 } catch (JMSException e) {
                     e.printStackTrace();
                 }
@@ -111,26 +107,23 @@ public abstract class ApplicationGateway {
     /**
      * Send a an offer to the client's resume.
      * @param resumeReply - the offer
-     * @param resumeRequest - the original resume
      */
-    public void sendResumeReply(ResumeReply resumeReply, ResumeRequest resumeRequest) {
+    public void sendResumeReply(ResumeReply resumeReply, ListLine ll) {
         //TODO: Send an offer to the client. Here the ResumeReply and it's correlationId is send.
         // The resumeRequestBiMap is Inversed so we can get the correlationId by the value (ResumeRequest).
-        sender.produce(QueueName.SEEK_JOB_REPLY, resumeReply, resumeRequestBiMap.inverse().get(resumeRequest));
+        sender.produce(QueueName.SEEK_JOB_REPLY, resumeReply, resumeRequestBiMap.inverse().get(ll));
     }
 
     /**
      * Send a request for an offer to the companies.
      * Here the list of acceptedCompanies from the Message Filter are used to send the messages.
-     * @param offerRequest
-     * @param resumeRequest
      */
-    public void sendOfferRequest(OfferRequest offerRequest, ResumeRequest resumeRequest) {
+    public void sendOfferRequest(OfferRequest offerRequest, ListLine listLine) {
         //TODO: Evaluate Companies by Sector
         List<String> sendTo = evaluateSector(offerRequest);
 
         // The resumeRequestBiMap is Inversed so we can get the correlationId by the value (ResumeRequest).
-        String messageId = resumeRequestBiMap.inverse().get(resumeRequest);
+        String messageId = resumeRequestBiMap.inverse().get(listLine);
 
         for(String company : sendTo) {
             sender.produce(String.format("%s_%s", QueueName.OFFER_JOB_REQUEST, company), offerRequest, messageId);
@@ -194,6 +187,20 @@ public abstract class ApplicationGateway {
         return acceptedCompanies;
     }
 
-    protected abstract void onOfferReplyArrived(ResumeRequest resumeRequest, OfferReply offerReply);
-    protected abstract void onResumeRequestArrived(ResumeRequest resumeRequest);
+    /**
+     * Repopulate all RequestReplies from the JSON file (used as in-memory database).
+     * It'll add each RequestReply back to the BiMap.
+     */
+    private void populateMessageList() {
+        //TODO: Prepopulate the list with the RequestReplies that are saved in the in-memory database.
+        HashBiMap<String, ListLine> requests = MessageReader.getRequests();
+
+        //TODO: Put these items back to the BiMap
+        requests.forEach((c, r) -> {
+            resumeRequestBiMap.put(c, r);
+        });
+    }
+
+    protected abstract void onOfferReplyArrived(ListLine ll, OfferReply offerReply);
+    protected abstract void onResumeRequestArrived(ListLine listLine);
 }

@@ -17,12 +17,10 @@ public class MessageSenderGateway extends MessageConnectionGateway {
 
     public String produce(String queue, Serializable obj, String messageId) {
         try {
-            //TODO: General PRoduce logic to send a JMS message.
             setDestination((Destination) getJndiContext().lookup(queue));
             this.producer = this.getSession().createProducer(this.getDestination());
             Message msg = this.getSession().createObjectMessage(generateGson(obj));
 
-            //TODO: Decide wether or not to set a correlationId.
             if(messageId != null) {
                 msg.setJMSCorrelationID(messageId);
             }
@@ -36,7 +34,6 @@ public class MessageSenderGateway extends MessageConnectionGateway {
     }
 
     public String generateGson(Serializable obj) {
-        //TODO: Convert Object to universally readable JSON body.
         Gson gson = new Gson();
         return gson.toJson(obj);
     }

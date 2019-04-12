@@ -1,6 +1,7 @@
 package com.nscharrenberg.elect.jobseeker;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -14,6 +15,10 @@ public class Main extends Application {
         primaryStage.setTitle("Elect - Send your resume");
         primaryStage.setScene(new Scene(root, 1280, 720));
         primaryStage.show();
+        primaryStage.setOnCloseRequest((ae) -> {
+            Platform.exit();
+            System.exit(0);
+        });
     }
 
 

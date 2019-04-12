@@ -1,0 +1,9 @@
+Product A: Guaranteed Delivery Uitleg																		- Product A - Compleet
+	- Broker moet ervoor zorgen dat berichten altijd verstuur worden en aankomen.												- DONE
+	- Gaat de broker offline, dan gaan de berichten niet verloren.														- DONE
+	- Zodra de broker weer online komt, worden de berichten die nog niet verstuurd waren alsnog verstuurd.									- DONE
+
+Product B: Prima																				- Product B - Compleet
+Product C:																					- Product C - Compleet
+	- Er gaat iets fout als er meerdere jobseekers zijn. Hierbij gooit activeMQ een nullpointer exception.									- DONE
+	- Zodra de broker offline gaat lijken berichten niet meer verstuurd te worden of ze worden niet meer weergeven bij de overige systemen.					- DONE

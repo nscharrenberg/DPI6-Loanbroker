@@ -58,12 +58,12 @@
     <favorites_list name="JavaFxApplication" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file leaf-file-name="ApplicationGateway.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/application/ApplicationGateway.java">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="Controller.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/controllers/Controller.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="452">
-              <caret line="52" column="63" lean-forward="true" selection-start-line="52" selection-start-column="63" selection-end-line="52" selection-end-column="63" />
+            <state relative-caret-position="1326">
+              <caret line="78" column="40" selection-start-line="78" selection-start-column="40" selection-end-line="78" selection-end-column="40" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -71,16 +71,62 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Controller.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/controllers/Controller.java">
+      <file leaf-file-name="ApplicationGateway.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/application/ApplicationGateway.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="547">
-              <caret line="142" selection-start-line="142" selection-end-line="142" />
+            <state relative-caret-position="683">
+              <caret line="65" column="69" selection-start-line="65" selection-start-column="69" selection-end-line="65" selection-end-column="69" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#4871#5220#0" expanded="true" />
-                <element signature="e#5219#5220#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="MessageWriter.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/shared/MessageWriter.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1343">
+              <caret line="79" column="5" selection-start-line="79" selection-start-column="5" selection-end-line="79" selection-end-column="5" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Main.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/Main.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="255">
+              <caret line="20" column="11" selection-start-line="20" selection-start-column="11" selection-end-line="20" selection-end-column="11" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="RequestReply.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/messaging/requestreply/RequestReply.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="765">
+              <caret line="53" column="9" selection-start-line="53" selection-start-column="9" selection-end-line="53" selection-end-column="9" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="OfferReply.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/domain/OfferReply.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1530">
+              <caret line="120" column="5" selection-start-line="120" selection-start-column="5" selection-end-line="120" selection-end-column="5" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="OfferRequest.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/domain/OfferRequest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1241">
+              <caret line="95" column="5" selection-start-line="95" selection-start-column="5" selection-end-line="95" selection-end-column="5" />
             </state>
           </provider>
         </entry>
@@ -102,8 +148,15 @@
       <find>amazon</find>
       <find>add</find>
       <find>Object</find>
-      <find>send</find>
+      <find>OfferRequest</find>
+      <find>getToken</find>
+      <find>OfferRequestReplyList</find>
+      <find>sendOfferReply</find>
     </findStrings>
+    <replaceStrings>
+      <replace>RequestReply</replace>
+      <replace>RequestReply&lt;OfferRequest, OfferReply&gt;</replace>
+    </replaceStrings>
   </component>
   <component name="FindManager">
     <FindUsagesManager>
@@ -130,20 +183,27 @@
         <option value="$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/domain/OfferReply.java" />
         <option value="$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/application/QueueName.java" />
         <option value="$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/domain/OfferRequest.java" />
+        <option value="$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/messaging/MessageConnectionGateway.java" />
+        <option value="$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/controllers/Controller.java" />
         <option value="$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/Main.java" />
         <option value="$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/domain/SavedOfferRequest.java" />
         <option value="$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/gateways/application/ApplicationGateway.java" />
         <option value="$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/shared/MessageWriter.java" />
         <option value="$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/controllers/Controller.java" />
         <option value="$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/shared/MessageReader.java" />
-        <option value="$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/Main.java" />
+        <option value="$PROJECT_DIR$/src/java/com/nscharrenberg/elect/microsoft/Main.java" />
+        <option value="$PROJECT_DIR$/src/java/com/nscharrenberg/elect/microsoft/gateways/messaging/requestreply/OfferRequestReplyList.java" />
+        <option value="$PROJECT_DIR$/src/java/com/nscharrenberg/elect/microsoft/shared/MessageWriter.java" />
+        <option value="$PROJECT_DIR$/src/java/com/nscharrenberg/elect/microsoft/shared/MessageReader.java" />
+        <option value="$PROJECT_DIR$/src/java/com/nscharrenberg/elect/microsoft/controllers/Controller.java" />
+        <option value="$PROJECT_DIR$/src/java/com/nscharrenberg/elect/microsoft/gateways/messaging/requestreply/RequestReply.java" />
+        <option value="$PROJECT_DIR$/src/java/com/nscharrenberg/elect/microsoft/domain/OfferReply.java" />
+        <option value="$PROJECT_DIR$/src/java/com/nscharrenberg/elect/microsoft/domain/OfferRequest.java" />
+        <option value="$PROJECT_DIR$/src/java/com/nscharrenberg/elect/microsoft/gateways/application/ApplicationGateway.java" />
+        <option value="$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/messaging/requestreply/RequestReply.java" />
         <option value="$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/shared/MessageWriter.java" />
-        <option value="$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/shared/MessageReader.java" />
-        <option value="$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/messaging/MessageConnectionGateway.java" />
-        <option value="$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/messaging/MessageReceiverGateway.java" />
-        <option value="$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/messaging/MessageSenderGateway.java" />
         <option value="$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/application/ApplicationGateway.java" />
-        <option value="$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/controllers/Controller.java" />
+        <option value="$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/Main.java" />
       </list>
     </option>
   </component>
@@ -249,20 +309,26 @@
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="java" type="462c0819:PsiDirectoryNode" />
               <item name="google" type="462c0819:PsiDirectoryNode" />
+              <item name="gateways" type="462c0819:PsiDirectoryNode" />
+              <item name="messaging" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="google" type="b2602c69:ProjectViewProjectNode" />
+              <item name="google" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="google" type="462c0819:PsiDirectoryNode" />
+              <item name="gateways" type="462c0819:PsiDirectoryNode" />
+              <item name="messaging" type="462c0819:PsiDirectoryNode" />
+              <item name="requestreply" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="google" type="b2602c69:ProjectViewProjectNode" />
+              <item name="google" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="google" type="462c0819:PsiDirectoryNode" />
               <item name="shared" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="google" type="b2602c69:ProjectViewProjectNode" />
-              <item name="google" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="resources" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="google" type="b2602c69:ProjectViewProjectNode" />
-              <item name="google" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="resources" type="462c0819:PsiDirectoryNode" />
-              <item name="fxml" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -281,23 +347,23 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
     <property name="dynamic.classpath" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../microsoft" />
     <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.14550781" />
     <property name="project.structure.side.proportion" value="0.2" />
     <property name="recentsLimit" value="5" />
   </component>
   <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="D:\NScha\Synology Cloud\School\S6\DPI6\Practicum 1\Loanbroker\elect\jobseeker\src" />
-      <recent name="D:\NScha\Synology Cloud\School\S6\DPI6\Practicum 1\Loanbroker\elect\jobseeker\src\java" />
-      <recent name="D:\NScha\Synology Cloud\School\S6\DPI6\Practicum 1\Loanbroker\elect\jobseeker\src\resources\fxml" />
-    </key>
     <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
       <recent name="" />
     </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="D:\NScha\Synology Cloud\School\S6\DPI6\Practicum 1\Loanbroker\elect\google\src\java\com\nscharrenberg\elect\google\domain" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\NScha\Synology Cloud\School\S6\DPI6\Practicum 1\Loanbroker\elect\jobseeker\src" />
+      <recent name="D:\NScha\Synology Cloud\School\S6\DPI6\Practicum 1\Loanbroker\elect\jobseeker\src\java" />
+      <recent name="D:\NScha\Synology Cloud\School\S6\DPI6\Practicum 1\Loanbroker\elect\jobseeker\src\resources\fxml" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -444,14 +510,16 @@
       <workItem from="1554041454372" duration="1238000" />
       <workItem from="1554044342992" duration="2552000" />
       <workItem from="1554878417792" duration="7961000" />
-      <workItem from="1554910867968" duration="4036000" />
-      <workItem from="1555016533038" duration="409000" />
-      <workItem from="1555059676168" duration="2137000" />
+      <workItem from="1554892972068" duration="1296000" />
+      <workItem from="1554914544938" duration="1972000" />
+      <workItem from="1555060788496" duration="8217000" />
+      <workItem from="1555070708727" duration="2659000" />
+      <workItem from="1555076100360" duration="31000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="46450000" />
+    <option name="totallyTimeSpent" value="52580000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
@@ -459,76 +527,72 @@
     <layout>
       <window_info anchor="right" id="Palette" order="3" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Messages" order="7" />
       <window_info anchor="right" id="Palette&#9;" order="4" />
       <window_info id="Image Layers" order="2" />
       <window_info anchor="right" id="Capture Analysis" order="4" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="right" id="Maven Projects" order="3" weight="0.17833698" />
       <window_info anchor="bottom" id="Database Changes" order="8" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.17538126" />
       <window_info anchor="bottom" id="Version Control" order="7" show_stripe_button="false" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.3017429" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.46514162" />
       <window_info id="Capture Tool" order="2" />
       <window_info id="Designer" order="2" />
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.6703755" visible="true" weight="0.18550107" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.6703755" visible="true" weight="0.23347548" />
       <window_info anchor="right" id="Database" order="3" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info id="UI Designer" order="2" />
       <window_info anchor="right" id="Theme Preview" order="4" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.21459696" />
       <window_info id="Favorites" order="2" side_tool="true" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.251634" />
       <window_info anchor="right" id="JetGradle" order="3" />
+      <window_info anchor="bottom" id="Messages" order="7" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info id="Persistence" order="3" side_tool="true" />
-      <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" weight="0.32893288" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32897604" />
       <window_info anchor="bottom" id="Changes" order="7" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Profiler" order="7" />
       <window_info anchor="bottom" id="Problems" order="7" />
-      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="bottom" id="Java Enterprise" order="9" />
+      <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Application Servers" order="7" />
     </layout>
     <layout-to-restore>
-      <window_info id="Persistence" order="7" side_tool="true" />
-      <window_info anchor="bottom" id="Application Servers" order="7" />
-      <window_info id="Designer" order="2" />
-      <window_info anchor="right" id="Palette" order="3" />
-      <window_info id="Image Layers" order="3" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.08278867" />
-      <window_info anchor="right" id="JetGradle" order="4" />
-      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
-      <window_info id="UI Designer" order="4" />
-      <window_info anchor="bottom" id="Profiler" order="8" />
-      <window_info id="Favorites" order="5" side_tool="true" />
-      <window_info anchor="bottom" id="Changes" order="9" />
-      <window_info id="Capture Tool" order="6" />
-      <window_info anchor="right" id="Capture Analysis" order="7" />
-      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
-      <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Messages" order="11" />
-      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="bottom" id="Problems" order="12" />
-      <window_info anchor="bottom" id="Java Enterprise" order="16" />
-      <window_info anchor="bottom" id="Database Changes" order="14" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Version Control" order="13" show_stripe_button="false" />
-      <window_info anchor="right" id="Maven Projects" order="5" weight="0.17833698" />
-      <window_info anchor="bottom" id="Terminal" order="15" weight="0.46514162" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.6703755" visible="true" weight="0.15511727" />
-      <window_info anchor="right" id="Database" order="6" />
-      <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="right" id="Palette&#9;" order="8" />
-      <window_info anchor="right" id="Theme Preview" order="9" />
-      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="Find" order="1" weight="0.32893288" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.37799564" />
+      <window_info anchor="bottom" id="Application Servers" order="9" />
+      <window_info id="Designer" order="0" />
+      <window_info anchor="right" id="Palette" order="6" />
+      <window_info id="Image Layers" order="1" />
+      <window_info anchor="bottom" id="Run" order="4" visible="true" weight="0.36963695" />
+      <window_info anchor="right" id="JetGradle" order="7" />
+      <window_info anchor="right" id="Ant Build" order="4" weight="0.25" />
+      <window_info id="UI Designer" order="2" />
+      <window_info anchor="bottom" id="Profiler" order="10" />
+      <window_info id="Favorites" order="6" side_tool="true" />
+      <window_info anchor="bottom" id="Changes" order="11" />
+      <window_info id="Capture Tool" order="3" />
+      <window_info anchor="right" id="Capture Analysis" order="0" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="3" type="SLIDING" weight="0.4" />
+      <window_info anchor="bottom" id="Event Log" order="12" side_tool="true" />
+      <window_info anchor="bottom" id="Cvs" order="6" weight="0.25" />
+      <window_info anchor="bottom" id="Messages" order="13" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="5" weight="0.25" />
+      <window_info anchor="bottom" id="Problems" order="14" />
+      <window_info anchor="bottom" id="Database Changes" order="0" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Version Control" order="15" show_stripe_button="false" />
+      <window_info anchor="right" id="Maven Projects" order="8" visible="true" weight="0.17833698" />
+      <window_info anchor="bottom" id="Terminal" order="1" weight="0.46514162" />
+      <window_info active="true" content_ui="combo" id="Project" order="4" sideWeight="0.6703755" visible="true" weight="0.46061268" />
+      <window_info anchor="right" id="Database" order="9" />
+      <window_info anchor="bottom" id="Message" order="2" />
+      <window_info anchor="bottom" id="TODO" order="8" />
+      <window_info anchor="right" id="Palette&#9;" order="1" />
+      <window_info anchor="right" id="Theme Preview" order="2" />
+      <window_info id="Structure" order="5" side_tool="true" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="7" weight="0.4" />
+      <window_info anchor="bottom" id="Find" order="3" weight="0.32897604" />
+      <window_info anchor="bottom" id="Debug" order="5" weight="0.4" />
     </layout-to-restore>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -545,80 +609,244 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
-          <url />
-          <line>27</line>
-          <properties />
-          <option name="timeStamp" value="4" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/application/ApplicationGateway.java</url>
-          <line>28</line>
+          <line>61</line>
           <properties />
-          <option name="timeStamp" value="7" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/controllers/Controller.java</url>
-          <line>138</line>
-          <properties />
-          <option name="timeStamp" value="8" />
+          <option name="timeStamp" value="10" />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="9" />
+      <option name="time" value="12" />
     </breakpoint-manager>
+    <watches-manager>
+      <configuration name="Application">
+        <watch expression="offerRequestStringBiMap.entrySet().toArray()[2]" />
+      </configuration>
+    </watches-manager>
   </component>
   <component name="antWorkspaceConfiguration">
     <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar://C:/Program Files/Java/jdk1.8.0_161/src.zip!/java/lang/Object.java">
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/domain/OfferRequest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="217">
-          <caret line="234" column="18" selection-start-line="234" selection-start-column="18" selection-end-line="234" selection-end-column="18" />
+        <state relative-caret-position="1241">
+          <caret line="95" column="5" lean-forward="true" selection-start-line="95" selection-start-column="5" selection-end-line="95" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/application/ApplicationGateway.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="850">
+          <caret line="61" column="64" selection-start-line="61" selection-start-column="64" selection-end-line="61" selection-end-column="64" />
           <folding>
-            <element signature="e#10065#10066#0" expanded="true" />
-            <element signature="e#10148#10149#0" expanded="true" />
+            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/domain/OfferRequest.java">
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/shared/MessageReader.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="357">
+          <caret line="27" selection-start-line="27" selection-end-line="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/shared/MessageWriter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="323">
+          <caret line="26" column="34" selection-start-line="26" selection-start-column="34" selection-end-line="26" selection-end-column="34" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/application/ApplicationGateway.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="578">
+          <caret line="43" column="34" selection-start-line="43" selection-start-column="34" selection-end-line="43" selection-end-column="34" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/Main.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="13" column="40" selection-start-line="13" selection-start-column="40" selection-end-line="13" selection-end-column="40" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/controllers/Controller.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1972">
+          <caret line="138" column="16" selection-start-line="138" selection-start-column="16" selection-end-line="138" selection-end-column="63" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/shared/MessageReader.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="357">
+          <caret line="27" selection-start-line="27" selection-end-line="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/shared/MessageWriter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="323">
+          <caret line="26" column="34" selection-start-line="26" selection-start-column="34" selection-end-line="26" selection-end-column="34" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/application/ApplicationGateway.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="578">
+          <caret line="43" column="34" lean-forward="true" selection-start-line="43" selection-start-column="34" selection-end-line="43" selection-end-column="34" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/Main.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="13" column="40" selection-start-line="13" selection-start-column="40" selection-end-line="13" selection-end-column="40" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/controllers/Controller.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1972">
+          <caret line="138" column="16" selection-start-line="138" selection-start-column="16" selection-end-line="138" selection-end-column="63" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/shared/MessageReader.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="357">
+          <caret line="27" selection-start-line="27" selection-end-line="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/shared/MessageWriter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="323">
+          <caret line="27" column="34" lean-forward="true" selection-start-line="27" selection-start-column="34" selection-end-line="27" selection-end-column="34" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/application/ApplicationGateway.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="544">
+          <caret line="41" column="63" lean-forward="true" selection-start-line="41" selection-start-column="63" selection-end-line="41" selection-end-column="63" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/controllers/Controller.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="510">
-          <caret line="66" column="132" lean-forward="true" selection-start-line="66" selection-start-column="132" selection-end-line="66" selection-end-column="132" />
+          <caret line="44" column="43" lean-forward="true" selection-start-line="44" selection-start-column="43" selection-end-line="44" selection-end-column="43" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/domain/ResumeRequest.java" />
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/domain/OfferReply.java">
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/messaging/MessageSenderGateway.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="479">
-          <caret line="87" column="5" lean-forward="true" selection-start-line="87" selection-start-column="5" selection-end-line="87" selection-end-column="5" />
+        <state relative-caret-position="476">
+          <caret line="35" column="29" selection-start-line="35" selection-start-column="29" selection-end-line="35" selection-end-column="29" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/domain/ResumeReply.java" />
-    <entry file="file://$PROJECT_DIR$/pom.xml">
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/messaging/MessageReceiverGateway.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="13" column="33" selection-start-line="13" selection-start-column="24" selection-end-line="13" selection-end-column="33" />
+        <state relative-caret-position="204">
+          <caret line="15" selection-start-line="15" selection-end-line="15" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/resources/META-INF/persistence.xml" />
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/controllers/Controller.java" />
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/gateways/messaging/MessageSenderGateway.java" />
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/gateways/messaging/MessageReceiverGateway.java" />
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/gateways/messaging/MessageConnectionGateway.java" />
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/gateways/messaging/requestreply/RequestReply.java" />
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/gateways/application/QueueName.java" />
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/gateways/application/ApplicationGateway.java" />
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/Main.java" />
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/gateways/application/ApplicationGateway.java" />
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/controllers/Controller.java" />
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/gateways/messaging/MessageReceiverGateway.java" />
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/gateways/messaging/MessageConnectionGateway.java" />
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/Main.java" />
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/messaging/MessageConnectionGateway.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="527">
+          <caret line="41" column="9" selection-start-line="41" selection-start-column="9" selection-end-line="41" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/messaging/requestreply/RequestReply.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="323">
+          <caret line="27" column="5" lean-forward="true" selection-start-line="27" selection-start-column="5" selection-end-line="27" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/application/QueueName.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="6" column="61" selection-start-line="6" selection-start-column="61" selection-end-line="6" selection-end-column="61" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/application/ApplicationGateway.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="21" column="53" lean-forward="true" selection-start-line="21" selection-start-column="53" selection-end-line="21" selection-end-column="53" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/Main.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="13" column="38" selection-start-line="13" selection-start-column="38" selection-end-line="13" selection-end-column="38" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/application/ApplicationGateway.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="238">
+          <caret line="25" column="118" selection-start-line="25" selection-start-column="118" selection-end-line="25" selection-end-column="118" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/controllers/Controller.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="918">
+          <caret line="68" column="101" selection-start-line="68" selection-start-column="52" selection-end-line="68" selection-end-column="101" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/messaging/MessageReceiverGateway.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="15" selection-start-line="15" selection-end-line="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/messaging/MessageConnectionGateway.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="527">
+          <caret line="41" column="9" lean-forward="true" selection-start-line="41" selection-start-column="9" selection-end-line="41" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/jobseeker/gateways/test.java" />
     <entry file="jar://$MAVEN_REPOSITORY$/org/apache/geronimo/specs/geronimo-jms_1.1_spec/1.1.1/geronimo-jms_1.1_spec-1.1.1.jar!/javax/jms/Session.class">
       <provider selected="true" editor-type-id="text-editor">
@@ -645,22 +873,26 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="217">
           <caret line="234" column="18" selection-start-line="234" selection-start-column="18" selection-end-line="234" selection-end-column="18" />
-          <folding>
-            <element signature="e#10065#10066#0" expanded="true" />
-            <element signature="e#10148#10149#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/domain/ResumeRequest.java" />
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/domain/OfferReply.java" />
     <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/domain/ResumeReply.java" />
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/gateways/messaging/MessageSenderGateway.java" />
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/gateways/messaging/MessageConnectionGateway.java" />
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/gateways/application/QueueName.java" />
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/domain/OfferRequest.java" />
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/messaging/MessageConnectionGateway.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="527">
+          <caret line="41" column="9" selection-start-line="41" selection-start-column="9" selection-end-line="41" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/application/QueueName.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="6" column="61" selection-start-line="6" selection-start-column="61" selection-end-line="6" selection-end-column="61" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/domain/SavedOfferRequest.java" />
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/gateways/messaging/requestreply/RequestReply.java" />
     <entry file="jar://$MAVEN_REPOSITORY$/com/google/guava/guava/27.1-jre/guava-27.1-jre.jar!/com/google/common/collect/HashBiMap.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="280">
@@ -675,71 +907,60 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/gateways/messaging/MessageReceiverGateway.java" />
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/gateways/application/ApplicationGateway.java" />
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/shared/MessageWriter.java" />
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/shared/MessageReader.java" />
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/amazon/controllers/Controller.java" />
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/Main.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="153">
-          <caret line="13" column="37" selection-start-line="13" selection-start-column="37" selection-end-line="13" selection-end-column="37" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/shared/MessageReader.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="17" column="13" lean-forward="true" selection-start-line="17" selection-start-column="13" selection-end-line="17" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/messaging/MessageConnectionGateway.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="400">
-          <caret line="37" column="69" selection-start-line="37" selection-start-column="69" selection-end-line="37" selection-end-column="69" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/messaging/MessageReceiverGateway.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="15" column="67" selection-start-line="15" selection-start-column="67" selection-end-line="15" selection-end-column="67" />
+        <state relative-caret-position="255">
+          <caret line="15" selection-start-line="15" selection-end-line="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/microsoft/gateways/messaging/requestreply/OfferRequestReplyList.java" />
+    <entry file="jar://$MAVEN_REPOSITORY$/org/apache/activemq/activemq-client/5.15.9/activemq-client-5.15.9.jar!/org/apache/activemq/ActiveMQMessageConsumer.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="182">
+          <caret line="1162" selection-start-line="1162" selection-end-line="1162" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/messaging/MessageSenderGateway.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="493">
-          <caret line="29" column="31" lean-forward="true" selection-start-line="29" selection-start-column="31" selection-end-line="29" selection-end-column="31" />
+        <state relative-caret-position="476">
+          <caret line="35" column="29" selection-start-line="35" selection-start-column="29" selection-end-line="35" selection-end-column="29" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/application/QueueName.java">
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/shared/MessageReader.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="6" column="59" selection-start-line="6" selection-start-column="44" selection-end-line="6" selection-end-column="59" />
+        <state relative-caret-position="470">
+          <caret line="29" selection-start-line="29" selection-end-line="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/domain/OfferReply.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1530">
+          <caret line="120" column="5" selection-start-line="120" selection-start-column="5" selection-end-line="120" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/domain/OfferRequest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1241">
+          <caret line="95" column="5" selection-start-line="95" selection-start-column="5" selection-end-line="95" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/messaging/requestreply/RequestReply.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="765">
+          <caret line="53" column="9" selection-start-line="53" selection-start-column="9" selection-end-line="53" selection-end-column="9" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/shared/MessageWriter.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="20" lean-forward="true" selection-start-line="20" selection-end-line="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/org/apache/activemq/activemq-client/5.15.9/activemq-client-5.15.9.jar!/org/apache/activemq/ActiveMQMessageConsumer.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="220">
-          <caret line="1160" selection-start-line="1160" selection-end-line="1160" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/application/ApplicationGateway.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="452">
-          <caret line="52" column="63" lean-forward="true" selection-start-line="52" selection-start-column="63" selection-end-line="52" selection-end-column="63" />
+        <state relative-caret-position="1343">
+          <caret line="79" column="5" selection-start-line="79" selection-start-column="5" selection-end-line="79" selection-end-column="5" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -748,13 +969,28 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/controllers/Controller.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="547">
-          <caret line="142" selection-start-line="142" selection-end-line="142" />
+        <state relative-caret-position="1326">
+          <caret line="78" column="40" selection-start-line="78" selection-start-column="40" selection-end-line="78" selection-end-column="40" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#4871#5220#0" expanded="true" />
-            <element signature="e#5219#5220#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/gateways/application/ApplicationGateway.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="683">
+          <caret line="65" column="69" selection-start-line="65" selection-start-column="69" selection-end-line="65" selection-end-column="69" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/com/nscharrenberg/elect/google/Main.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="20" column="11" selection-start-line="20" selection-start-column="11" selection-end-line="20" selection-end-column="11" />
         </state>
       </provider>
     </entry>
