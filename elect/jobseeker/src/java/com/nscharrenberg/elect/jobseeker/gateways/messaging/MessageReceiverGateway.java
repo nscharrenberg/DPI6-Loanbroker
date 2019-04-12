@@ -11,8 +11,14 @@ public class MessageReceiverGateway extends MessageConnectionGateway {
     public MessageReceiverGateway() {
     }
 
+    /**
+     * Consume a JMS message from the broker.
+     * @param queue
+     * @return
+     */
     public MessageConsumer consume(String queue) {
         try {
+            //TODO: General Receive logic to receive a JMS message.
             setDestination((Destination) getJndiContext().lookup(queue));
             this.consumer = this.getSession().createConsumer(getDestination());
             this.getConnection().start();

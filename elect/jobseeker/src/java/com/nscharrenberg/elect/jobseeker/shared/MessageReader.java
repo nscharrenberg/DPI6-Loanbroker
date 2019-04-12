@@ -20,9 +20,12 @@ public class MessageReader {
         FileInputStream fis = null;
         ObjectInputStream ois = null;
 
+        //TODO: Read the in-memory database (for this prototype it's a JSON file)
         try {
+            // Create a file if it does not exist
             MessageWriter.create(path);
 
+            // Read the File
             RandomAccessFile reader = new RandomAccessFile(path, "r");
             FileChannel channel = reader.getChannel();
             int bufferSize = 1024;
@@ -35,10 +38,9 @@ public class MessageReader {
             channel.read(buff);
             buff.flip();
 
+            // Convert Json back to RequestReplyList Object
             Gson gson = new Gson();
-            HashBiMap<String, RequestReplyList> replies = HashBiMap.create(gson.fromJson(new String(buff.array()), new TypeToken<HashBiMap<String, RequestReplyList>>(){}.getType()));
-
-            return replies;
+            return HashBiMap.create(gson.fromJson(new String(buff.array()), new TypeToken<HashBiMap<String, RequestReplyList>>(){}.getType()));
         } catch (Exception e) {
             e.printStackTrace();
             return HashBiMap.create();

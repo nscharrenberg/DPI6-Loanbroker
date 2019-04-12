@@ -108,6 +108,7 @@ public class Controller implements Initializable {
         }
     }
 
+
     @FXML
     void sendBtn(ActionEvent event) {
         ResumeRequest resumeRequest = new ResumeRequest();
@@ -118,6 +119,7 @@ public class Controller implements Initializable {
         resumeRequest.setSector(sectorTxt.getValue());
         resumeRequest.setSkills(getTextFromFxmlTextField(skillTxt));
 
+        //TODO: Send a ResumeRequest uppon form submit
         String messageId = applicationGateway.sendResumeRequest(resumeRequest);
         RequestReplyList RequestReplyList = applicationGateway.getRequestReplyBiMap().get(messageId);
         observableList.add(RequestReplyList);
@@ -128,6 +130,11 @@ public class Controller implements Initializable {
         return textField.getText();
     }
 
+    /**
+     * Get RequestReply by a ResumeRequest in the ObservableList
+     * @param resumeRequest
+     * @return
+     */
     private RequestReplyList getRequestReply(ResumeRequest resumeRequest) {
         for (RequestReplyList rr : observableList) {
             if (rr.getRequest().equals(resumeRequest)) {
@@ -138,6 +145,10 @@ public class Controller implements Initializable {
         return null;
     }
 
+    /**
+     * Repopulate all RequestReplies from the JSON file (used as in-memory database).
+     * It'll add each RequestReply back to the List.
+     */
     private void populateMessageList() {
         HashBiMap<String, RequestReplyList> requests = MessageReader.getRequests();
 
@@ -159,6 +170,7 @@ public class Controller implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         populateMessageList();
 
+        //TODO: Listen if a ReplyHasArrived from the applicationGateway. Perform some functionality to update the list.
         applicationGateway = new ApplicationGateway() {
             @Override
             public void onReplyArrived(String correlationId, RequestReply<ResumeRequest, ResumeReply> requestReplyList) {
@@ -167,6 +179,7 @@ public class Controller implements Initializable {
                     rr.addReply(requestReplyList.getReply());
                     messageList.refresh();
 
+                    // Update the in-memory database.
                     MessageWriter.update(correlationId, requestReplyList.getReply());
                 }
             }

@@ -27,6 +27,8 @@ public class MessageConnectionGateway {
      * Initialize the connection with the broker.
      */
     private void initConnection() {
+
+        //TODO: Setup some properties such as the Provider, ContextFactory and the Queues that this application uses.
         props = new Properties();
         props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
         props.setProperty(Context.PROVIDER_URL, "tcp://localhost:61616");
@@ -42,6 +44,7 @@ public class MessageConnectionGateway {
         });
 
         try {
+            //TODO: Instantiate Connection Session with the Provider.
             this.jndiContext = new InitialContext(props);
             ActiveMQConnectionFactory factory = (ActiveMQConnectionFactory) jndiContext.lookup("ConnectionFactory");
             factory.setTrustAllPackages(true);

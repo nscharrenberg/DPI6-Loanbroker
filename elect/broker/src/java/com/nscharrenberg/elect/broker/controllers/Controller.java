@@ -30,6 +30,8 @@ public class Controller {
             @Override
             protected void onOfferReplyArrived(ResumeRequest resumeRequest, OfferReply offerReply) {
                 add(resumeRequest, offerReply);
+
+                //TODO: Send a ResumeReply uppon arrival of an OfferReply
                 applicationGateway.sendResumeReply(new ResumeReply(offerReply.getCompanyId(), offerReply.getFunctionTitle(), offerReply.getSalary(), offerReply.getDuration(), offerReply.getContactEmail(), offerReply.getContactPersonName(), offerReply.getFunctionDescription()), resumeRequest);
                 messageList.refresh();
             }
@@ -39,6 +41,8 @@ public class Controller {
                 add(resumeRequest);
                 OfferRequest offerRequest = new OfferRequest(resumeRequest.getFirstName(), resumeRequest.getLastName(), resumeRequest.getSector(), resumeRequest.getRegion(), resumeRequest.getSkills());
                 add(resumeRequest, offerRequest);
+
+                //TODO: Send an OfferRequest uppon arrival of a ResumeRequest
                 applicationGateway.sendOfferRequest(offerRequest, resumeRequest);
                 messageList.refresh();
             }

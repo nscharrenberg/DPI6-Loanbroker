@@ -76,6 +76,8 @@ public class Controller implements Initializable {
 
             if (rr != null && offerReply != null) {
                 rr.setReply(offerReply);
+
+                //TODO: Send an OfferReply uppon form submit
                 applicationGateway.sendOfferReply(rr);
                 messageList.refresh();
             }
@@ -85,7 +87,7 @@ public class Controller implements Initializable {
             alert.setHeaderText("Something went wrong!");
             alert.setContentText(ex.getMessage());
 
-// Create expandable Exception.
+            // Create expandable Exception.
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
             ex.printStackTrace(pw);
@@ -130,6 +132,7 @@ public class Controller implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         populateMessageList();
 
+        //TODO: Listen if a OfferRequest has arrived from the applicationGateway. Perform some functionality to update the list.
         applicationGateway = new ApplicationGateway() {
             @Override
             public void onOfferRequestArrived(String correlationId, OfferRequest offerRequest) {

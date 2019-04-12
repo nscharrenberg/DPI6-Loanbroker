@@ -3,20 +3,21 @@ package com.nscharrenberg.elect.broker.data;
 import java.util.stream.Stream;
 
 public enum CompanyList {
-    GOOGLE("google", "STREQ(\"IT\")"),
-    MICROSOFT("microsoft", "STREQ(\"IT\")"),
-    MCDONALDS("mcdonalds", "STREQ(\"HORECA\")"),
-    CLEANING("cleaning", "STREQ(\"CLEANING\")"),
-    AMAZON("amazon", "STREQ(\"LOGISTIEK\")"),
-    AH("albertheijn", "STREQ(\"LOGISTIEK\")"),
-    SODEXO("sodexo", "STREQ(\"HORECA\")");
+    //TODO: All Companies known to the broker with their sector. Currently only the sector.
+    GOOGLE("google", "SECTOR(\"IT\")"),
+    MICROSOFT("microsoft", "SECTOR(\"IT\")"),
+    MCDONALDS("mcdonalds", "SECTOR(\"HORECA\")"),
+    CLEANING("cleaning", "SECTOR(\"CLEANING\")"),
+    AMAZON("amazon", "SECTOR(\"LOGISTIEK\")"),
+    AH("albertheijn", "SECTOR(\"LOGISTIEK\")"),
+    SODEXO("sodexo", "SECTOR(\"HORECA\")");
 
     private String name;
-    private String criteria;
+    private String sector;
 
-    CompanyList(String name, String criteria) {
+    CompanyList(String name, String sector) {
         this.name = name;
-        this.criteria = criteria;
+        this.sector = sector;
     }
 
     public String getName() {
@@ -27,12 +28,12 @@ public enum CompanyList {
         this.name = name;
     }
 
-    public String getCriteria() {
-        return criteria;
+    public String getSector() {
+        return sector;
     }
 
-    public void setCriteria(String criteria) {
-        this.criteria = criteria;
+    public void setSector(String sector) {
+        this.sector = sector;
     }
 
     /**

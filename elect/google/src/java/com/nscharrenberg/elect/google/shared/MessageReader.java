@@ -14,6 +14,7 @@ public class MessageReader {
         FileInputStream fis = null;
         ObjectInputStream ois = null;
 
+        //TODO: Read the in-memory database (for this prototype it's a JSON file)
         try {
             MessageWriter.create(path);
 

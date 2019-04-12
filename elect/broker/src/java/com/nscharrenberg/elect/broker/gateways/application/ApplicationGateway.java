@@ -41,6 +41,7 @@ public abstract class ApplicationGateway {
         MessageConsumer messageConsumer = receiver.consume(QueueName.SEEK_JOB_REQUEST);
 
         try {
+            //TODO: MessageListener to receive a ResumeRequest no the "seekRequestQueue" queue.
             messageConsumer.setMessageListener(message -> {
                 ResumeRequest resumeRequest = null;
                 String messageId;
@@ -48,21 +49,20 @@ public abstract class ApplicationGateway {
                 try {
                     Gson gson = new Gson();
                     String json = (String)((ObjectMessage) message).getObject();
+
+                    // Convert json to ResumeRequest Object.
                     resumeRequest = gson.fromJson(json, ResumeRequest.class);
 
                     messageId = message.getJMSMessageID();
                     resumeRequestBiMap.put(messageId, resumeRequest);
-                    System.out.println(String.format("Message received in listener with msgId %s", messageId));
                 } catch (JMSException e) {
                     e.printStackTrace();
-                    System.out.println(String.format("Message received in listener with exception %s", e.getMessage()));
                 }
 
                 onResumeRequestArrived(resumeRequest);
             });
         } catch (JMSException e) {
             e.printStackTrace();
-            System.out.println(String.format("Message received in listener with exception %s", e.getMessage()));
         }
     }
 
@@ -74,6 +74,7 @@ public abstract class ApplicationGateway {
         MessageConsumer messageConsumer = receiver.consume(QueueName.OFFER_JOB_REPLY);
 
         try {
+            //TODO: MessageListener to receive a OfferReply no the "offerReplyQueue" queue.
             messageConsumer.setMessageListener(message -> {
                 OfferReply offerReply = null;
                 String messageId;
@@ -83,6 +84,8 @@ public abstract class ApplicationGateway {
                 try {
                     Gson gson = new Gson();
                     String json = (String)((ObjectMessage) message).getObject();
+
+                    // Convert JSON to OfferReply Object
                     offerReply = gson.fromJson(json, OfferReply.class);
                     messageId = message.getJMSCorrelationID();
                     resumeRequest = resumeRequestBiMap.get(messageId);
@@ -111,6 +114,8 @@ public abstract class ApplicationGateway {
      * @param resumeRequest - the original resume
      */
     public void sendResumeReply(ResumeReply resumeReply, ResumeRequest resumeRequest) {
+        //TODO: Send an offer to the client. Here the ResumeReply and it's correlationId is send.
+        // The resumeRequestBiMap is Inversed so we can get the correlationId by the value (ResumeRequest).
         sender.produce(QueueName.SEEK_JOB_REPLY, resumeReply, resumeRequestBiMap.inverse().get(resumeRequest));
     }
 
@@ -121,7 +126,10 @@ public abstract class ApplicationGateway {
      * @param resumeRequest
      */
     public void sendOfferRequest(OfferRequest offerRequest, ResumeRequest resumeRequest) {
+        //TODO: Evaluate Companies by Sector
         List<String> sendTo = evaluateSector(offerRequest);
+
+        // The resumeRequestBiMap is Inversed so we can get the correlationId by the value (ResumeRequest).
         String messageId = resumeRequestBiMap.inverse().get(resumeRequest);
 
         for(String company : sendTo) {
@@ -139,9 +147,10 @@ public abstract class ApplicationGateway {
     private List<String> evaluateSector(OfferRequest request) {
         List<String> acceptedCompanies = new ArrayList<>();
 
+        //TODO: Compare the OfferRequest sector with the companies criteria.
         CompanyList.stream().forEach((c) -> {
-            Expression e = new Expression(c.getCriteria());
-            e.addLazyFunction(new AbstractLazyFunction("STREQ", 1) {
+            Expression e = new Expression(c.getSector());
+            e.addLazyFunction(new AbstractLazyFunction("SECTOR", 1) {
                 private Expression.LazyNumber ZERO = new Expression.LazyNumber() {
                     @Override
                     public BigDecimal eval() {
@@ -176,6 +185,7 @@ public abstract class ApplicationGateway {
                 }
             });
 
+            //TODO: Only add companies where the OfferRequest meets their criteria.
            if(e.eval().equals(BigDecimal.ONE)) {
                 acceptedCompanies.add(c.getName());
            }

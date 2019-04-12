@@ -28,6 +28,7 @@ public abstract class ApplicationGateway {
         MessageConsumer messageConsumer = receiver.consume(QueueName.SEEK_JOB_REPLY);
 
         try {
+            //TODO: MessageListener to receive Replies on the "seekReplyQueue" queue.
             messageConsumer.setMessageListener(message -> {
                 ResumeReply resumeReply = null;
                 String messageId = null;
@@ -37,10 +38,17 @@ public abstract class ApplicationGateway {
                 try {
                     Gson gson = new Gson();
                     String json = (String)((ObjectMessage) message).getObject();
+
+                    // Convert JSON to ResumeReply Object
                     resumeReply = gson.fromJson(json, ResumeReply.class);
 
                     messageId = message.getJMSCorrelationID();
                     requestReply = requestReplyBiMap.get(messageId);
+
+                    if(requestReply == null) {
+                        return;
+                    }
+
                     requestReply.addReply(resumeReply);
                     replyArrived = new RequestReply<>(requestReply.getRequest(), resumeReply);
                 } catch (JMSException e) {
@@ -54,9 +62,18 @@ public abstract class ApplicationGateway {
         }
     }
 
+    /**
+     * Send a ResumeRequest to the Broker
+     * @param resumeRequest
+     * @return
+     */
     public String sendResumeRequest(ResumeRequest resumeRequest) {
         RequestReplyList requestReply = new RequestReplyList(resumeRequest, null);
+
+        //TODO: Call producer to send a ResumeRequest through the "seekRequestQueue" queue. This has no CorrelationId as it's the first message.
         String messageId = sender.produce(QueueName.SEEK_JOB_REQUEST, resumeRequest, null);
+
+        //TODO: Add the send request to the in-memory database.
         MessageWriter.add(messageId, requestReply);
 
         if(messageId != null) {
@@ -66,9 +83,15 @@ public abstract class ApplicationGateway {
         return messageId;
     }
 
+    /**
+     * Repopulate all RequestReplies from the JSON file (used as in-memory database).
+     * It'll add each RequestReply back to the BiMap.
+     */
     private void populateMessageList() {
+        //TODO: Prepopulate the list with the RequestReplies that are saved in the in-memory database.
         HashBiMap<String, RequestReplyList> requests = MessageReader.getRequests();
 
+        //TODO: Put these items back to the BiMap
         requests.forEach((c, r) -> {
             requestReplyBiMap.put(c, r);
         });

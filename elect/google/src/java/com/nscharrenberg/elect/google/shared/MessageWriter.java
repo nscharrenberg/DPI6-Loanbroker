@@ -14,6 +14,7 @@ public class MessageWriter {
         FileOutputStream fos = null;
         ObjectOutputStream oos = null;
 
+        //TODO: Store OfferRequest in the in-memory database (for this prototype it's a JSON file)
         try {
             String path = "google.json";
             create(path);

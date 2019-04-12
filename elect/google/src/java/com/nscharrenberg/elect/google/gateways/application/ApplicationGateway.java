@@ -24,6 +24,7 @@ public abstract class ApplicationGateway {
         MessageConsumer messageConsumer = receiver.consume(String.format("%s_%s", QueueName.OFFER_JOB_REQUEST, "google"));
 
         try {
+            //TODO: MessageListener to receive OfferRequests on the "offerRequestQueue" queue of Google.
             messageConsumer.setMessageListener(message -> {
                 OfferRequest offerRequest = null;
                 String messageId = null;
@@ -47,6 +48,7 @@ public abstract class ApplicationGateway {
     }
 
     public void sendOfferReply(RequestReply<OfferRequest, OfferReply> requestReply) {
+        //TODO: Call producer to send a OfferReply through the "offerReplyQueue" queue. This has the correlationId of the original ResumeRequest message.
         String correlationId = offerRequestStringBiMap.get(requestReply.getRequest());
         sender.produce(QueueName.OFFER_JOB_REPLY, requestReply.getReply(), correlationId);
     }

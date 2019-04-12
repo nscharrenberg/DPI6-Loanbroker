@@ -24,6 +24,8 @@ public class MessageConnectionGateway {
      * Initialize the connection with the jobseeker.
      */
     private void initConnection() {
+
+        //TODO: Setup some properties such as the Provider, ContextFactory and the Queues that this application uses.
         Properties props = new Properties();
         props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
         props.setProperty(Context.PROVIDER_URL, "tcp://localhost:61616");
@@ -31,6 +33,7 @@ public class MessageConnectionGateway {
         props.put(String.format("queue.%s", QueueName.SEEK_JOB_REPLY), QueueName.SEEK_JOB_REPLY);
 
         try {
+            //TODO: Instantiate Connection Session with the Provider.
             this.jndiContext = new InitialContext(props);
             ConnectionFactory factory = (ConnectionFactory) jndiContext.lookup("ConnectionFactory");
             connection = factory.createConnection();

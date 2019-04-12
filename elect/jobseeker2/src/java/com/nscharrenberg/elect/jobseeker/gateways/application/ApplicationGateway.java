@@ -41,6 +41,9 @@ public abstract class ApplicationGateway {
 
                     messageId = message.getJMSCorrelationID();
                     requestReply = requestReplyBiMap.get(messageId);
+                    if(requestReply == null) {
+                        return;
+                    }
                     requestReply.addReply(resumeReply);
                     replyArrived = new RequestReply<>(requestReply.getRequest(), resumeReply);
                 } catch (JMSException e) {

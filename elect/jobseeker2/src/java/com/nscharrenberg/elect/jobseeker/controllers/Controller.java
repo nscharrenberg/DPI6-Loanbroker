@@ -167,7 +167,7 @@ public class Controller implements Initializable {
                     rr.addReply(requestReplyList.getReply());
                     messageList.refresh();
 
-                    MessageWriter.update(correlationId, requestReplyList.getReply());
+//                    MessageWriter.update(correlationId, requestReplyList.getReply());
                 }
             }
         };
